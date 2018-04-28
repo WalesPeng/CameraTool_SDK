@@ -867,7 +867,9 @@ namespace CameraTool
                     width += 640;
                 }
 
-                this.Width = width/2 + 18;
+                this.StartPosition = FormStartPosition.Manual; // YKB 20180428 窗体的位置由Location属性决定
+                this.Location = (Point)new Size(0, 0);
+                this.Width = width/2 + 18; // YKB 20180428 窗口默认以图像的一半显示
                 this.Height = height/2 + 50 + pictBDisplay.Top + statusStrip2.Height;
                 
                 //if (capture.cameraModel == CameraLP.CameraModel.M034 && width == 1280 && height == 720)

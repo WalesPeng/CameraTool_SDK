@@ -2401,38 +2401,6 @@ namespace CameraTool
             }
         }
 
-        private void ReadExptoolStripMenuItem_Click(object sender, EventArgs e) // YKB 20180421 add 读曝光值
-        {
-            if (capture != null)
-            {
-                //m_curExp = capture.GetExposure();// 获取相机曝光值代码[-13,3]
-                //m_curGain = capture.GetGain();
-
-                //m_curExp = capture.Exposure; // 获取相机曝光值代码[-13,3]
-                //m_curGain = capture.Gain;
-
-                m_curExp = capture.m_capture.GetExpsosureExt(); // 获取相机曝光值[1,65535]行
-                m_curGain = capture.m_capture.GetGain();
-                //frmRegRW_MODESET.Read_Triggered = true;
-                //R_address = 0xff2a;
-                //handleRegRW_MODESET();
-            }
-        }
-
-        int exp = -13;
-        private void WriteExptoolStripMenuItem_Click(object sender, EventArgs e) // YKB 20180421 add 写曝光值
-        {
-            if (capture != null)
-            {
-                capture.Exposure = exp;
-                exp++;
-                if (exp > 3)
-                {
-                    exp = -13;
-                }
-            }
-        }
-
         private void ShowCrosstoolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!m_Show_Cross)

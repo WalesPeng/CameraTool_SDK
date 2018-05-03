@@ -45,8 +45,6 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.saveAllImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.WriteExptoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReadExptoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.triggerModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.positiveEdgeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -156,7 +154,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -221,8 +219,6 @@
             this.toolStripSeparator1,
             this.saveAllImageToolStripMenuItem,
             this.captureImageToolStripMenuItem,
-            this.WriteExptoolStripMenuItem,
-            this.ReadExptoolStripMenuItem,
             this.toolStripSeparator4,
             this.triggerModeToolStripMenuItem,
             this.softTriggerToolStripMenuItem,
@@ -276,20 +272,6 @@
             this.captureImageToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.captureImageToolStripMenuItem.Text = "CaptureOneImage";
             this.captureImageToolStripMenuItem.Click += new System.EventHandler(this.captureImageToolStripMenuItem_Click);
-            // 
-            // WriteExptoolStripMenuItem
-            // 
-            this.WriteExptoolStripMenuItem.Name = "WriteExptoolStripMenuItem";
-            this.WriteExptoolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.WriteExptoolStripMenuItem.Text = "write";
-            this.WriteExptoolStripMenuItem.Click += new System.EventHandler(this.WriteExptoolStripMenuItem_Click);
-            // 
-            // ReadExptoolStripMenuItem
-            // 
-            this.ReadExptoolStripMenuItem.Name = "ReadExptoolStripMenuItem";
-            this.ReadExptoolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.ReadExptoolStripMenuItem.Text = "read";
-            this.ReadExptoolStripMenuItem.Click += new System.EventHandler(this.ReadExptoolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
@@ -905,8 +887,6 @@
         private System.Windows.Forms.ToolStripMenuItem noiseCalculationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem programFlashToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAllImageToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem WriteExptoolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ReadExptoolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ShowCrosstoolStripMenuItem;
         private System.Windows.Forms.PictureBox pictureBoxCrossH;
         private System.Windows.Forms.PictureBox pictureBoxCrossV;

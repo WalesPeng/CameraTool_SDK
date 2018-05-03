@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
+using System.Drawing.Imaging;
 
 using LeopardCamera;
 using PluginInterface;
@@ -116,6 +117,9 @@ namespace CameraTool
         string configpath = ""; // YKB 20180428 配置文件路径
         StringBuilder sb = new StringBuilder(255);
 
+        ImageCodecInfo myImageCodecInfo;
+        EncoderParameters myEncoderParameters; // 图片编码参数
+
         public CameraToolForm()
         {
             InitializeComponent(); // YKB 20180420 菜单初始化
@@ -136,6 +140,22 @@ namespace CameraTool
             R_value = frmRegRW_MODESET.RReg_Value;
 
             SensorMode = frmRegRW_MODESET.sensormode;
+
+            //*************************************保存图像时编码设置***********************************************
+            //YKB 20180503 获得JPEG格式的编码器
+            myImageCodecInfo = GetEncoderInfo("image/jpeg");
+            System.Drawing.Imaging.Encoder myEncoder;
+            EncoderParameter myEncoderParameter;
+            
+            // for the Quality parameter category.
+            myEncoder = System.Drawing.Imaging.Encoder.Quality;
+            // EncoderParameter object in the array.
+            myEncoderParameters = new EncoderParameters(1);
+            //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
+            myEncoderParameter = new EncoderParameter(myEncoder, 75L);
+            myEncoderParameters.Param[0] = myEncoderParameter;
+            //*************************************保存图像时编码设置结束***********************************************
+
 
             thread = new Thread(thread_saveimage); // YKB 20180423 add 为存图专门新建一个线程
             //thread.IsBackground = true;
@@ -190,8 +210,6 @@ namespace CameraTool
                                                                         (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
                                                                         (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
 
-                    m_SaveFrameToFile = false;
-                    m_SaveFileInProcess = false; // 先交给回调函数采集图像，同时该线程保存图片
                     //*************************************文件参数获取设置***********************************************
                     //判断是否存在配置文件
                     if (!File.Exists(configpath))
@@ -210,12 +228,15 @@ namespace CameraTool
                     }
                     GetPrivateProfileString("Setting", "FileName", "", sb, 255, configpath);
                     string MyFileName = MySavePath + iNumDiff.ToString("D6") + sb.ToString();
-                    string MybmpFileName = Path.ChangeExtension(MyFileName, ".bmp"); // 保存BMP格式图像
+                    string MybmpFileName = Path.ChangeExtension(MyFileName, ".jpg"); // 保存BMP格式图像
                     //*************************************文件参数获取设置结束***********************************************
 
-                    imageBmpSave.Save(MybmpFileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                    //imageBmpSave.Save(MybmpFileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                    imageBmpSave.Save(MybmpFileName, myImageCodecInfo, myEncoderParameters);
                     imageBmpSave.Dispose();
 
+                    m_SaveFrameToFile = false;
+                    m_SaveFileInProcess = false; // 先交给回调函数采集图像，同时该线程保存图片
 
                 }
                 if (m_SaveFrameToFile && m_CaptureOneImage) // 单帧存图和图像获取完成，则进入图像保存
@@ -2923,5 +2944,20 @@ namespace CameraTool
         [DllImport("kernel32")] // 读取配置文件的接口
         private static extern int GetPrivateProfileString(string section, string key, string def,StringBuilder retVal, int size, string filePath);
         //*************************************配置文件操作结束***********************************************
+
+        //*************************************获取图像编码***********************************************
+        ImageCodecInfo GetEncoderInfo(String mimeType)
+        {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for (j = 0; j < encoders.Length; ++j)
+            {
+                if (encoders[j].MimeType == mimeType)
+                    return encoders[j];
+            }
+            return null;
+        }
+        //*************************************获取图像编码结束***********************************************
     }
 }

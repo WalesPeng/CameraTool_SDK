@@ -111,7 +111,7 @@ namespace CameraTool
         byte[] imageData;
         private Bitmap imageBmpSave;
         IntPtr pBufferSave = IntPtr.Zero;
-        int iTriggerCount = 0;  // YKB 20180425 add 记录硬件触发帧数
+        int iLastFrameCount = 0;  // YKB 20180425 add 记录保存图像时相机帧数
         int iNumDiff = 0; // YKB 20180425 add 记录图像保存次数
         string configpath = ""; // YKB 20180428 配置文件路径
         StringBuilder sb = new StringBuilder(255);
@@ -189,6 +189,9 @@ namespace CameraTool
                                                                         (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
                                                                         (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
                                                                         (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
+
+                    m_SaveFrameToFile = false;
+                    m_SaveFileInProcess = false; // 先交给回调函数采集图像，同时该线程保存图片
                     //*************************************文件参数获取设置***********************************************
                     //判断是否存在配置文件
                     if (!File.Exists(configpath))
@@ -213,8 +216,6 @@ namespace CameraTool
                     imageBmpSave.Save(MybmpFileName, System.Drawing.Imaging.ImageFormat.Bmp);
                     imageBmpSave.Dispose();
 
-                    m_SaveFrameToFile = false;
-                    m_SaveFileInProcess = false; // 先交给回调函数采集图像，同时该线程保存图片
 
                 }
                 if (m_SaveFrameToFile && m_CaptureOneImage) // 单帧存图和图像获取完成，则进入图像保存
@@ -1396,15 +1397,7 @@ namespace CameraTool
                             pBufferSave = Marshal.AllocCoTaskMem(LastSize);
                         }
                         CopyMemory(pBufferSave, pBuffer1, iWidth * iHeight * iBPP / 8);
-                        if (m_TriggerMode) // 在触发模式下每次采集帧号怎加
-                        {
-                            iTriggerCount++;
-                            iNumDiff = iTriggerCount;
-                        }
-                        else
-                        {
-                            iNumDiff = capture.FrameCount;
-                        }
+                        iNumDiff = capture.FrameCount - iLastFrameCount; // 记录与开始保存图片时帧数差
                         m_SaveFileInProcess = true;
                         m_SaveFrameToFile = true; // YKB 20180423 保存标志位置位，等待保存
                     }
@@ -2939,12 +2932,16 @@ namespace CameraTool
         {
             if (!m_SaveAllImage)
             {
+                iNumDiff = 0;
+                iLastFrameCount = capture.FrameCount; // 记录保存图像时当前帧数
                 m_SaveAllImage = true;
                 //MessageBox.Show("开始保存图像..."); // YKB 20180421 modify 修改每帧图像保存时菜单状态
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage ... ... ";
             }
             else
             {
+                iNumDiff = 0;
+                iLastFrameCount = capture.FrameCount;
                 m_SaveAllImage = false;
                 //MessageBox.Show("保存图像结束！");
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";

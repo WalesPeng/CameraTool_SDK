@@ -108,6 +108,7 @@
             this.pictureBoxCrossHTM = new System.Windows.Forms.PictureBox();
             this.pictureBoxCrossHBM = new System.Windows.Forms.PictureBox();
             this.pictureBoxCrossHBB = new System.Windows.Forms.PictureBox();
+            this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -139,7 +140,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(488, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(585, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -485,11 +486,12 @@
             this.toolStripStatusLabelRes,
             this.toolStripStatusLabel1,
             this.toolStripStatusLabelFPS,
-            this.statusToolStripStatusLabel});
+            this.statusToolStripStatusLabel,
+            this.savecounttoolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 25);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(488, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(585, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -567,7 +569,7 @@
             this.pictBDisplay.Location = new System.Drawing.Point(0, 44);
             this.pictBDisplay.Margin = new System.Windows.Forms.Padding(2);
             this.pictBDisplay.Name = "pictBDisplay";
-            this.pictBDisplay.Size = new System.Drawing.Size(488, 336);
+            this.pictBDisplay.Size = new System.Drawing.Size(585, 336);
             this.pictBDisplay.TabIndex = 2;
             this.pictBDisplay.TabStop = false;
             this.pictBDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictBDisplay_MouseDown);
@@ -640,7 +642,7 @@
             this.statusStrip2.Location = new System.Drawing.Point(0, 378);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip2.Size = new System.Drawing.Size(488, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(585, 22);
             this.statusStrip2.TabIndex = 8;
             this.statusStrip2.Text = "statusStrip2";
             // 
@@ -764,11 +766,17 @@
             this.pictureBoxCrossHBB.TabStop = false;
             this.pictureBoxCrossHBB.Visible = false;
             // 
+            // savecounttoolStripStatusLabel
+            // 
+            this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
+            this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(80, 17);
+            this.savecounttoolStripStatusLabel.Text = "Save Count: ";
+            // 
             // CameraToolForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(488, 400);
+            this.ClientSize = new System.Drawing.Size(585, 400);
             this.Controls.Add(this.pictureBoxCrossV);
             this.Controls.Add(this.pictureBoxCrossHTM);
             this.Controls.Add(this.pictureBoxCrossHTT);
@@ -894,6 +902,7 @@
         private System.Windows.Forms.PictureBox pictureBoxCrossHTM;
         private System.Windows.Forms.PictureBox pictureBoxCrossHBM;
         private System.Windows.Forms.PictureBox pictureBoxCrossHBB;
+        private System.Windows.Forms.ToolStripStatusLabel savecounttoolStripStatusLabel;
     }
 }
 

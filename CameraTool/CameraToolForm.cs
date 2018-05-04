@@ -221,7 +221,7 @@ namespace CameraTool
                     //读取配置
                     
                     GetPrivateProfileString("Setting", "SavePath", ".\\image\\", sb, 255, configpath);
-                    MySavePath = sb.ToString();
+                    MySavePath = sb.ToString() + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
                     if (!Directory.Exists(MySavePath))//判断是否存在
                     {
                         Directory.CreateDirectory(MySavePath);//创建新路径
@@ -374,7 +374,7 @@ namespace CameraTool
                 {
                     if (capture.FrameCount != m_PrevFrameCnt) // org code
                         statusToolStripStatusLabel.Text = "Frame Count: " + capture.FrameCount.ToString();
-
+                    savecounttoolStripStatusLabel.Text = "Save Count: " + iNumDiff.ToString();
                     //if (capture.FrameCount != m_PrevFrameCnt) // YKB 20180421 modify 获取相机曝光值和增益
                     //{
                     //    int exp = capture.GetExposure();
@@ -2929,8 +2929,6 @@ namespace CameraTool
             }
             else
             {
-                iNumDiff = 0;
-                iLastFrameCount = capture.FrameCount;
                 m_SaveAllImage = false;
                 //MessageBox.Show("保存图像结束！");
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";

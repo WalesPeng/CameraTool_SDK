@@ -1790,9 +1790,10 @@ namespace CameraTool
             SofwareRevision rev = new SofwareRevision();
 
             string message =
-                "Camera Tool for Leopard Imaging USB3.0 Cameras\n" +
-                "Revision " + rev.revision.ToString() + "\n" 
-              + "Leopard Imaging, Inc. 2015";
+                "Camera Tool for Leopard Imaging USB3.0 Cameras\n"
+                + "Revision " + rev.revision.ToString() + "\n"
+                + "Leopard Imaging, Inc. 2015\n"
+                + "Maintained by CIDI_YKB";
             const string caption = "About";
             var result = MessageBox.Show(message, caption);
 

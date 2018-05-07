@@ -48,6 +48,7 @@ namespace CameraTool
 
         private bool mRAWDisplay = true;
         private bool m_TriggerMode = false;
+        private int m_Image_Extension = 1; // YKB 20180507 增加存储格式选择,0 bmp;1 jpg
         private bool m_CaptureOneImage = false;
         private bool m_SaveAllImage = false;      //Modify by PMH 2018.4.12
         private bool m_AutoExposure = false;
@@ -183,6 +184,7 @@ namespace CameraTool
         private void thread_saveimage() // YKB 20180423 add 为存图专门新建一个线程
         {
             string MySavePath = ".\\image\\";
+            string SubPath = DateTime.Now.ToString("yyyyMMddhhmmss"); // YKB 20180507 连续存图时的子文件夹前缀
             while (true)
             {
                 Thread.Sleep(1);
@@ -221,18 +223,27 @@ namespace CameraTool
                     //读取配置
                     
                     GetPrivateProfileString("Setting", "SavePath", ".\\image\\", sb, 255, configpath);
-                    MySavePath = sb.ToString() + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
-                    if (!Directory.Exists(MySavePath))//判断是否存在
+                    string SavePath = sb.ToString() + SubPath + "_" + (iNumDiff / 300).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
+                    if (!Directory.Exists(SavePath))//判断是否存在
                     {
-                        Directory.CreateDirectory(MySavePath);//创建新路径
+                        Directory.CreateDirectory(SavePath);//创建新路径
                     }
                     GetPrivateProfileString("Setting", "FileName", "", sb, 255, configpath);
-                    string MyFileName = MySavePath + iNumDiff.ToString("D6") + sb.ToString();
-                    string MybmpFileName = Path.ChangeExtension(MyFileName, ".jpg"); // 保存BMP格式图像
-                    //*************************************文件参数获取设置结束***********************************************
+                    string PahName = SavePath + iNumDiff.ToString("D6") + sb.ToString();
+                    string FileName = "";
+                    if (1 == m_Image_Extension) // jpg保存
+                    {
+                        FileName = Path.ChangeExtension(PahName, ".jpg"); // 保存BMP格式图像
+                        //*************************************文件参数获取设置结束***********************************************
+                        imageBmpSave.Save(FileName, myImageCodecInfo, myEncoderParameters);
+                    }
+                    else // bmp保存
+                    {
+                        FileName = Path.ChangeExtension(PahName, ".bmp"); // 保存BMP格式图像
+                        //*************************************文件参数获取设置结束***********************************************
 
-                    //imageBmpSave.Save(MybmpFileName, System.Drawing.Imaging.ImageFormat.Bmp);
-                    imageBmpSave.Save(MybmpFileName, myImageCodecInfo, myEncoderParameters);
+                        imageBmpSave.Save(FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                    }
                     imageBmpSave.Dispose();
 
                     m_SaveFrameToFile = false;
@@ -255,13 +266,25 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(MySavePath);//创建新路径
                     }
-                    string MyFileName = MySavePath + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff");
-                    string MybmpFileName = Path.ChangeExtension(MyFileName, ".bmp"); // 保存BMP格式图像
-                    imageBmpSave.Save(MybmpFileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                    string PahName = MySavePath + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff");
+                    string FileName = "";
+                    if (1 == m_Image_Extension) // jpg保存
+                    {
+                        FileName = Path.ChangeExtension(PahName, ".jpg"); // 保存BMP格式图像
+                        //*************************************文件参数获取设置结束***********************************************
+                        imageBmpSave.Save(FileName, myImageCodecInfo, myEncoderParameters);
+                    }
+                    else // bmp保存
+                    {
+                        FileName = Path.ChangeExtension(PahName, ".bmp"); // 保存BMP格式图像
+                        //*************************************文件参数获取设置结束***********************************************
+
+                        imageBmpSave.Save(FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                    }
                     imageBmpSave.Dispose();
+                    m_CaptureOneImage = false; // 保存一次则退出
                     m_SaveFrameToFile = false;
                     m_SaveFileInProcess = false;
-                    m_CaptureOneImage = false; // 保存一次则退出
                 }
             }
         }
@@ -1629,6 +1652,12 @@ namespace CameraTool
                 itemt = (ToolStripMenuItem)autoTriggerToolStripMenuItem;
                 itemt.Checked = false;
 
+                itemt = (ToolStripMenuItem)BMPToolStripMenuItem;
+                itemt.Checked = false;
+                itemt = (ToolStripMenuItem)JPGToolStripMenuItem;
+                itemt.Checked = true; // 默认以jpg存储
+                m_Image_Extension = 1; // YKB 20180507 增加存储格式选择,0 bmp;1 jpg
+
                 softTriggerToolStripMenuItem.Enabled = false;
                 captureImageToolStripMenuItem.Enabled = true;
                 autoTriggerToolStripMenuItem.Enabled = false;
@@ -2584,6 +2613,36 @@ namespace CameraTool
 
         }
 
+        private void BMPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)BMPToolStripMenuItem;
+            if(false == item.Checked) // 之前不是bmp存储，则重新选择文件扩展名
+            {
+                m_Image_Extension = 0;
+                item.Checked = true;
+                item = (ToolStripMenuItem)JPGToolStripMenuItem;
+                item.Checked = false;
+            }
+            else
+            {
+            }
+        }
+
+        private void JPGToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)JPGToolStripMenuItem;
+            if (false == item.Checked) // 之前不是jpg存储，则重新选择文件扩展名
+            {
+                m_Image_Extension = 1;
+                item.Checked = true;
+                item = (ToolStripMenuItem)BMPToolStripMenuItem;
+                item.Checked = false;
+            }
+            else
+            {
+            }
+        }
+
         private void noiseCalculationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (m_NoiseCalculationEna)
@@ -2927,12 +2986,15 @@ namespace CameraTool
                 m_SaveAllImage = true;
                 //MessageBox.Show("开始保存图像..."); // YKB 20180421 modify 修改每帧图像保存时菜单状态
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage ... ... ";
+
+                captureImageToolStripMenuItem.Enabled = false;
             }
             else
             {
                 m_SaveAllImage = false;
                 //MessageBox.Show("保存图像结束！");
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";
+                captureImageToolStripMenuItem.Enabled = true;
             }
         }
 

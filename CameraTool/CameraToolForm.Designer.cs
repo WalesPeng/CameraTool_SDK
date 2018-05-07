@@ -43,6 +43,9 @@
             this.cameraPropertyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cameraPropWinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.BMPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.JPGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -85,6 +88,7 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFPS = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.pictBDisplay = new System.Windows.Forms.PictureBox();
             this.pictureBoxCenter = new System.Windows.Forms.PictureBox();
             this.pictureBoxTopLeft = new System.Windows.Forms.PictureBox();
@@ -108,7 +112,6 @@
             this.pictureBoxCrossHTM = new System.Windows.Forms.PictureBox();
             this.pictureBoxCrossHBM = new System.Windows.Forms.PictureBox();
             this.pictureBoxCrossHBB = new System.Windows.Forms.PictureBox();
-            this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -218,6 +221,7 @@
             this.cameraPropertyToolStripMenuItem,
             this.cameraPropWinToolStripMenuItem,
             this.toolStripSeparator1,
+            this.toolStripMenuItem1,
             this.saveAllImageToolStripMenuItem,
             this.captureImageToolStripMenuItem,
             this.toolStripSeparator4,
@@ -259,6 +263,29 @@
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.JPGToolStripMenuItem,
+            this.BMPToolStripMenuItem});
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(224, 22);
+            this.toolStripMenuItem1.Text = "SelectImageExtension";
+            // 
+            // BMPToolStripMenuItem
+            // 
+            this.BMPToolStripMenuItem.Name = "BMPToolStripMenuItem";
+            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.BMPToolStripMenuItem.Text = "bmp";
+            this.BMPToolStripMenuItem.Click += new System.EventHandler(this.BMPToolStripMenuItem_Click);
+            // 
+            // JPGToolStripMenuItem
+            // 
+            this.JPGToolStripMenuItem.Name = "JPGToolStripMenuItem";
+            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.JPGToolStripMenuItem.Text = "jpg";
+            this.JPGToolStripMenuItem.Click += new System.EventHandler(this.JPGToolStripMenuItem_Click);
             // 
             // saveAllImageToolStripMenuItem
             // 
@@ -560,6 +587,12 @@
             this.statusToolStripStatusLabel.Size = new System.Drawing.Size(50, 17);
             this.statusToolStripStatusLabel.Text = "Status: ";
             // 
+            // savecounttoolStripStatusLabel
+            // 
+            this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
+            this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(80, 17);
+            this.savecounttoolStripStatusLabel.Text = "Save Count: ";
+            // 
             // pictBDisplay
             // 
             this.pictBDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -766,12 +799,6 @@
             this.pictureBoxCrossHBB.TabStop = false;
             this.pictureBoxCrossHBB.Visible = false;
             // 
-            // savecounttoolStripStatusLabel
-            // 
-            this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
-            this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(80, 17);
-            this.savecounttoolStripStatusLabel.Text = "Save Count: ";
-            // 
             // CameraToolForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -903,6 +930,9 @@
         private System.Windows.Forms.PictureBox pictureBoxCrossHBM;
         private System.Windows.Forms.PictureBox pictureBoxCrossHBB;
         private System.Windows.Forms.ToolStripStatusLabel savecounttoolStripStatusLabel;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem BMPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem JPGToolStripMenuItem;
     }
 }
 

@@ -46,6 +46,7 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.BMPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.JPGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PNGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -88,7 +89,7 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFPS = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel11 = new System.Windows.Forms.ToolStripStatusLabel();
             this.pictBDisplay = new System.Windows.Forms.PictureBox();
             this.pictureBoxCenter = new System.Windows.Forms.PictureBox();
             this.pictureBoxTopLeft = new System.Windows.Forms.PictureBox();
@@ -112,6 +113,7 @@
             this.pictureBoxCrossHTM = new System.Windows.Forms.PictureBox();
             this.pictureBoxCrossHBM = new System.Windows.Forms.PictureBox();
             this.pictureBoxCrossHBB = new System.Windows.Forms.PictureBox();
+            this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -143,7 +145,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(585, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(619, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -267,8 +269,9 @@
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.BMPToolStripMenuItem,
             this.JPGToolStripMenuItem,
-            this.BMPToolStripMenuItem});
+            this.PNGToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(224, 22);
             this.toolStripMenuItem1.Text = "SelectImageExtension";
@@ -276,16 +279,23 @@
             // BMPToolStripMenuItem
             // 
             this.BMPToolStripMenuItem.Name = "BMPToolStripMenuItem";
-            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.BMPToolStripMenuItem.Text = "bmp";
             this.BMPToolStripMenuItem.Click += new System.EventHandler(this.BMPToolStripMenuItem_Click);
             // 
             // JPGToolStripMenuItem
             // 
             this.JPGToolStripMenuItem.Name = "JPGToolStripMenuItem";
-            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.JPGToolStripMenuItem.Text = "jpg";
             this.JPGToolStripMenuItem.Click += new System.EventHandler(this.JPGToolStripMenuItem_Click);
+            // 
+            // PNGToolStripMenuItem
+            // 
+            this.PNGToolStripMenuItem.Name = "PNGToolStripMenuItem";
+            this.PNGToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.PNGToolStripMenuItem.Text = "png";
+            this.PNGToolStripMenuItem.Click += new System.EventHandler(this.PNGToolStripMenuItem_Click);
             // 
             // saveAllImageToolStripMenuItem
             // 
@@ -513,12 +523,13 @@
             this.toolStripStatusLabelRes,
             this.toolStripStatusLabel1,
             this.toolStripStatusLabelFPS,
-            this.statusToolStripStatusLabel,
-            this.savecounttoolStripStatusLabel});
+            this.toolStripStatusLabel11,
+            this.savecounttoolStripStatusLabel,
+            this.statusToolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 25);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(585, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(619, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -587,11 +598,11 @@
             this.statusToolStripStatusLabel.Size = new System.Drawing.Size(50, 17);
             this.statusToolStripStatusLabel.Text = "Status: ";
             // 
-            // savecounttoolStripStatusLabel
+            // toolStripStatusLabel11
             // 
-            this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
-            this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(80, 17);
-            this.savecounttoolStripStatusLabel.Text = "Save Count: ";
+            this.toolStripStatusLabel11.Name = "toolStripStatusLabel11";
+            this.toolStripStatusLabel11.Size = new System.Drawing.Size(76, 17);
+            this.toolStripStatusLabel11.Text = "Save Count:";
             // 
             // pictBDisplay
             // 
@@ -602,7 +613,7 @@
             this.pictBDisplay.Location = new System.Drawing.Point(0, 44);
             this.pictBDisplay.Margin = new System.Windows.Forms.Padding(2);
             this.pictBDisplay.Name = "pictBDisplay";
-            this.pictBDisplay.Size = new System.Drawing.Size(585, 336);
+            this.pictBDisplay.Size = new System.Drawing.Size(619, 336);
             this.pictBDisplay.TabIndex = 2;
             this.pictBDisplay.TabStop = false;
             this.pictBDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictBDisplay_MouseDown);
@@ -675,7 +686,7 @@
             this.statusStrip2.Location = new System.Drawing.Point(0, 378);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip2.Size = new System.Drawing.Size(585, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(619, 22);
             this.statusStrip2.TabIndex = 8;
             this.statusStrip2.Text = "statusStrip2";
             // 
@@ -799,11 +810,18 @@
             this.pictureBoxCrossHBB.TabStop = false;
             this.pictureBoxCrossHBB.Visible = false;
             // 
+            // savecounttoolStripStatusLabel
+            // 
+            this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
+            this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(19, 17);
+            this.savecounttoolStripStatusLabel.Text = "0 ";
+            this.savecounttoolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // CameraToolForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(585, 400);
+            this.ClientSize = new System.Drawing.Size(619, 400);
             this.Controls.Add(this.pictureBoxCrossV);
             this.Controls.Add(this.pictureBoxCrossHTM);
             this.Controls.Add(this.pictureBoxCrossHTT);
@@ -929,10 +947,12 @@
         private System.Windows.Forms.PictureBox pictureBoxCrossHTM;
         private System.Windows.Forms.PictureBox pictureBoxCrossHBM;
         private System.Windows.Forms.PictureBox pictureBoxCrossHBB;
-        private System.Windows.Forms.ToolStripStatusLabel savecounttoolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel11;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem BMPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem JPGToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem PNGToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel savecounttoolStripStatusLabel;
     }
 }
 

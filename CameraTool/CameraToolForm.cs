@@ -48,7 +48,7 @@ namespace CameraTool
 
         private bool mRAWDisplay = true;
         private bool m_TriggerMode = false;
-        private string m_Image_Extension = ".jpg"; // YKB 20180507 增加存储格式选择,0 bmp;1 jpg;4 png
+        private string m_Image_Extension = "jpg"; // YKB 20180507 增加存储格式选择,0 bmp;1 jpg;2 tif;3 gif;4 png
         private bool m_CaptureOneImage = false;
         private bool m_SaveAllImage = false;      //Modify by PMH 2018.4.12
         private bool m_AutoExposure = false;
@@ -69,7 +69,7 @@ namespace CameraTool
         private bool m_AE_done = false;
         private int m_PrevFrameCnt = 0;
         private bool m_Show_Anchors = false;
-        private bool m_Show_Cross = false; // YKB 20180427 增加十字丝显示
+        private bool m_Show_Grid = false; // YKB 20180427 增加十字丝显示
 
         private bool m_RW_REG_ModeSET = false;
         private int W_address = 0, W_value = 0;
@@ -110,16 +110,15 @@ namespace CameraTool
         private bool m_SaveFrameToFile = false;
         private bool m_SaveFileInProcess = false;
         
-        byte[] imageData;
         private Bitmap imageBmpSave;
-        IntPtr pBufferSave = IntPtr.Zero;
         int iLastFrameCount = 0;  // YKB 20180425 add 记录保存图像时相机帧数
         int iNumDiff = 0; // YKB 20180425 add 记录图像保存次数
-        string configpath = ""; // YKB 20180428 配置文件路径
-        StringBuilder sb = new StringBuilder(255);
+        string g_ConfigPath = ""; // YKB 20180428 配置文件路径
+        string g_SavePath = ""; // YKB 20180510 图片保存路径
+        string g_SaveSuffix = ""; // YKB 20180510 文件后缀
 
-        ImageCodecInfo myImageCodecInfo;
-        EncoderParameters myEncoderParameters; // 图片编码参数
+        ImageCodecInfo g_ImageCodecInfo;
+        EncoderParameters g_EncoderParameters; // 图片编码参数
 
         public CameraToolForm()
         {
@@ -157,46 +156,27 @@ namespace CameraTool
         }
         private void thread_saveimage() // YKB 20180423 add 为存图专门新建一个线程
         {
-            string MySavePath = ".\\image";
             string SubPath = DateTime.Now.ToString("yyyyMMddhhmmss"); // YKB 20180507 连续存图时的子文件夹前缀
             while (true)
             {
                 Thread.Sleep(1);
-                //System.Threading.Thread.Sleep(1);
-                //if (!m_SaveFileInProcess) // YKB 20180420 是否正在保存图片 true 正在保存图片
-                //{
-                //    //System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-                //    //watch.Start();  //开始监视代码运行时间
-                //    SaveCapturedImage();
-                //    //TimeSpan timespan = watch.Elapsed;  //获取当前实例测量得出的总时间
-                //    //System.Diagnostics.Debug.WriteLine("代码执行时间：{0}(毫秒)", timespan.TotalMilliseconds);  //总毫秒数
-                //}
+                //System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();  //开始监视代码运行时间
+                //TimeSpan timespan = watch.Elapsed;  //获取当前实例测量得出的总时间
+                //System.Diagnostics.Debug.WriteLine("代码执行时间：{0}(毫秒)", timespan.TotalMilliseconds);  //总毫秒数
 
                 //*************************************连续存储***********************************************
                 if (m_SaveFrameToFile && m_SaveAllImage) // 连续存图和图像获取完成，则进入图像保存
                 {
-                    //判断是否存在配置文件
-                    if (!File.Exists(configpath))
-                    {
-                        //写入配置
-                        WritePrivateProfileString("Setting", "SavePath", ".\\image", configpath);
-                        WritePrivateProfileString("Setting", "FileName", "", configpath);
-                    }
-
-                    //路径设置
-                    GetPrivateProfileString("Setting", "SavePath", ".\\image", sb, 255, configpath);
-                    string SavePath = sb.ToString() + "\\" + SubPath + "_" + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
+                    string SavePath = g_SavePath + "\\" + SubPath + "_" + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
                     if (!Directory.Exists(SavePath))//判断是否存在
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-
-                    // 文件名设置
-                    GetPrivateProfileString("Setting", "FileName", "", sb, 255, configpath);
-                    string FileName = SavePath + iNumDiff.ToString("D6") + sb.ToString();
+                    string FileName = SavePath + iNumDiff.ToString("D6") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, m_Image_Extension);
 
-                    imageBmpSave.Save(FileName, myImageCodecInfo, myEncoderParameters);
+                    imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
                     imageBmpSave.Dispose(); // 释放空间，因为在图像获取时创建了空间
                     m_SaveFrameToFile = false; // 先交给回调函数采集图像，同时该线程保存图片
                 }
@@ -205,14 +185,15 @@ namespace CameraTool
                 //*************************************单帧存储***********************************************
                 if (m_SaveFrameToFile && m_CaptureOneImage) // 单帧存图和图像获取完成，则进入图像保存
                 {
-                    if (!Directory.Exists(MySavePath))//判断是否存在
+                    string SavePath = g_SavePath;
+                    if (!Directory.Exists(SavePath))//判断是否存在
                     {
-                        Directory.CreateDirectory(MySavePath);//创建新路径
+                        Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    string FileName = MySavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff");
+                    string FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff");
                     FileName = Path.ChangeExtension(FileName, m_Image_Extension);
 
-                    imageBmpSave.Save(FileName, myImageCodecInfo, myEncoderParameters);
+                    imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
                     imageBmpSave.Dispose();
                     m_CaptureOneImage = false; // 保存一次则退出
                     m_SaveFrameToFile = false;
@@ -331,8 +312,8 @@ namespace CameraTool
                     if (capture.FrameCount != m_PrevFrameCnt) // org code
                     {
                         statusToolStripStatusLabel.Text = "Frame Count: " + capture.FrameCount.ToString();
-                        savecounttoolStripStatusLabel.Text = iNumDiff.ToString("D6") + " ";
                     }
+                    savecounttoolStripStatusLabel.Text = iNumDiff.ToString("D6") + " ";
 
                     m_PrevFrameCnt = capture.FrameCount;
 
@@ -1048,7 +1029,7 @@ namespace CameraTool
             m_SaveFrameToFile = true; // YKB 20180423 保存标志位置位，等待保存
         }
 
-        private void CopyFrame_YKB(IntPtr pBuffer, int width, int height, int bpp) // YKB 20180423 复制图像，如果保存帧到文件标志位为true，则复制
+        private void CopyFrame_YKB(IntPtr pBuffer, int width, int height, int bpp) // YKB 20180509 复制图像，YUV转RGB
         {
             if (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV
                 || m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV_DUAL)
@@ -1345,13 +1326,21 @@ namespace CameraTool
             {
 
                 //*************************************用于保存的图像获取***********************************************
-                if (m_SaveAllImage || m_CaptureOneImage) // YKB 20180509 单帧或者多帧图像获取
+                if (m_SaveAllImage) // YKB 20180509 多帧图像获取
                 {
                     if (!m_SaveFrameToFile)
                     {
                         CopyFrame_YKB(pBuffer1, iWidth, iHeight, dataWidth); // 将BYTE数据转换成bitmap数据imageBmpSave
 
                         iNumDiff = capture.FrameCount - iLastFrameCount;
+                        m_SaveFrameToFile = true; // YKB 20180509 图像获取完成，保存标志位使能，等待保存
+                    }
+                }
+                if (m_CaptureOneImage) // YKB 20180509 单帧图像获取
+                {
+                    if (!m_SaveFrameToFile)
+                    {
+                        CopyFrame_YKB(pBuffer1, iWidth, iHeight, dataWidth); // 将BYTE数据转换成bitmap数据imageBmpSave
                         m_SaveFrameToFile = true; // YKB 20180509 图像获取完成，保存标志位使能，等待保存
                     }
                 }
@@ -1524,43 +1513,41 @@ namespace CameraTool
             {
                 capture.EnableTriggerMode(false, false);
                 m_TriggerMode = false;
-                ToolStripMenuItem itemt = (ToolStripMenuItem)positiveEdgeToolStripMenuItem;
-                itemt.Checked = false;
 
-                itemt = (ToolStripMenuItem)autoTriggerToolStripMenuItem;
-                itemt.Checked = false;
-
-                itemt = (ToolStripMenuItem)BMPToolStripMenuItem;
-                itemt.Checked = false;
-                itemt = (ToolStripMenuItem)JPGToolStripMenuItem;
-                itemt.Checked = true; // 默认以jpg存储
-                itemt = (ToolStripMenuItem)PNGToolStripMenuItem;
-                itemt.Checked = false;
+                positiveEdgeToolStripMenuItem.Checked = false;
+                autoTriggerToolStripMenuItem.Checked = false;
 
                 //*************************************保存图像时编码设置***********************************************
                 //YKB 20180503 获得PNG格式的编码器
-                myImageCodecInfo = GetEncoderInfo("image/jpeg");
+                g_ImageCodecInfo = GetEncoderInfo("image/jpeg");
                 System.Drawing.Imaging.Encoder myEncoder;
                 EncoderParameter myEncoderParameter;
 
                 // for the Quality parameter category.
                 myEncoder = System.Drawing.Imaging.Encoder.Quality;
                 // EncoderParameter object in the array.
-                myEncoderParameters = new EncoderParameters(1);
+                g_EncoderParameters = new EncoderParameters(1);
                 //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
                 myEncoderParameter = new EncoderParameter(myEncoder, 75L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
+                g_EncoderParameters.Param[0] = myEncoderParameter;
                 //*************************************保存图像时编码设置结束***********************************************
+
+                EnableExtensionMeneItem(1);
 
                 // YKB 20180428 增加配置文件
                 //配置文件位置
-                configpath = AppDomain.CurrentDomain.BaseDirectory + "config.ini";
+                g_ConfigPath = AppDomain.CurrentDomain.BaseDirectory + "config.ini";
                 //判断是否存在配置文件
-                if (!File.Exists(configpath))
+                if (!File.Exists(g_ConfigPath))
                 {
-                    WritePrivateProfileString("Setting", "SavePath", ".\\image", configpath);
-                    WritePrivateProfileString("Setting", "FileName", "", configpath);
+                    WriteProfileDefault(g_ConfigPath);
                 }
+                StringBuilder sb = new StringBuilder(255);
+                //路径设置
+                GetPrivateProfileString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SavePath = sb.ToString();
+                GetPrivateProfileString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
+                g_SaveSuffix = sb.ToString();
 
                 softTriggerToolStripMenuItem.Enabled = false;
                 captureImageToolStripMenuItem.Enabled = true;
@@ -2359,75 +2346,6 @@ namespace CameraTool
             }
         }
 
-        private void ShowCrosstoolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!m_Show_Cross)
-            {
-                ToolStripMenuItem item = (ToolStripMenuItem)ShowCrosstoolStripMenuItem;
-                item.Checked = true;
-
-                // Position video window in client rect of owner window
-                Rectangle rc = pictBDisplay.Bounds;
-                
-                // YKB 20180427 图像十字丝显示
-                pictureBoxCrossV.Height = rc.Height; // 垂直线
-                pictureBoxCrossV.Width = 1;
-                pictureBoxCrossV.Top = rc.Top;
-                pictureBoxCrossV.Left = rc.Left + rc.Width / 2;
-
-                pictureBoxCrossHTT.Height = 1; // 水平线
-                pictureBoxCrossHTT.Width = rc.Width;
-                pictureBoxCrossHTT.Top = rc.Top + 1 * rc.Height / 6;
-                pictureBoxCrossHTT.Left = rc.Left;
-
-                pictureBoxCrossHTM.Height = 1; // 水平线
-                pictureBoxCrossHTM.Width = rc.Width;
-                pictureBoxCrossHTM.Top = rc.Top + 2 * rc.Height / 6;
-                pictureBoxCrossHTM.Left = rc.Left;
-
-                pictureBoxCrossH.Height = 1; // 水平线
-                pictureBoxCrossH.Width = rc.Width;
-                pictureBoxCrossH.Top = rc.Top + 3 * rc.Height / 6;
-                pictureBoxCrossH.Left = rc.Left;
-
-                pictureBoxCrossHBM.Height = 1; // 水平线
-                pictureBoxCrossHBM.Width = rc.Width;
-                pictureBoxCrossHBM.Top = rc.Top + 4 * rc.Height / 6;
-                pictureBoxCrossHBM.Left = rc.Left;
-
-                pictureBoxCrossHBB.Height = 1; // 水平线
-                pictureBoxCrossHBB.Width = rc.Width;
-                pictureBoxCrossHBB.Top = rc.Top + 5 * rc.Height / 6;
-                pictureBoxCrossHBB.Left = rc.Left;
-
-                if (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV
-                || m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV_DUAL)
-                {
-                    pictureBoxCrossHTT.Visible = true;
-                    pictureBoxCrossHTM.Visible = true;
-                    pictureBoxCrossHBM.Visible = true;
-                    pictureBoxCrossHBB.Visible = true;
-                    pictureBoxCrossH.Visible = true;
-                    pictureBoxCrossV.Visible = true;
-                }
-
-                m_Show_Cross = true;
-            }
-            else
-            {
-                ToolStripMenuItem item = (ToolStripMenuItem)ShowCrosstoolStripMenuItem;
-                item.Checked = false;
-
-                pictureBoxCrossHTT.Visible = false;
-                pictureBoxCrossHTM.Visible = false;
-                pictureBoxCrossHBM.Visible = false;
-                pictureBoxCrossHBB.Visible = false;
-                pictureBoxCrossH.Visible = false;
-                pictureBoxCrossV.Visible = false;
-
-                m_Show_Cross = false;
-            }
-        }
 
         private void parsePluginParam()
         {
@@ -2527,23 +2445,20 @@ namespace CameraTool
             {
                 //*************************************保存图像时编码设置***********************************************
                 //YKB 20180503 获得JPEG格式的编码器
-                myImageCodecInfo = GetEncoderInfo("image/bmp");
-                System.Drawing.Imaging.Encoder myEncoder;
-                EncoderParameter myEncoderParameter;
+                g_ImageCodecInfo = GetEncoderInfo("image/bmp");
+                System.Drawing.Imaging.Encoder Encoder;
+                EncoderParameter EncoderParameter;
 
                 // for the Quality parameter category.
-                myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                Encoder = System.Drawing.Imaging.Encoder.Quality;
                 // EncoderParameter object in the array.
-                myEncoderParameters = new EncoderParameters(1);
+                g_EncoderParameters = new EncoderParameters(1);
                 //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
-                myEncoderParameter = new EncoderParameter(myEncoder, 100L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
+                EncoderParameter = new EncoderParameter(Encoder, 100L);
+                g_EncoderParameters.Param[0] = EncoderParameter;
                 //*************************************保存图像时编码设置结束***********************************************
 
-                m_Image_Extension = "bmp";
-                item.Checked = true;
-                item = (ToolStripMenuItem)JPGToolStripMenuItem;
-                item.Checked = false;
+                EnableExtensionMeneItem(0);
             }
             else
             {
@@ -2558,25 +2473,76 @@ namespace CameraTool
             {
                 //*************************************保存图像时编码设置***********************************************
                 //YKB 20180503 获得JPEG格式的编码器
-                myImageCodecInfo = GetEncoderInfo("image/jpeg");
-                System.Drawing.Imaging.Encoder myEncoder;
-                EncoderParameter myEncoderParameter;
+                g_ImageCodecInfo = GetEncoderInfo("image/jpeg");
+                System.Drawing.Imaging.Encoder Encoder;
+                EncoderParameter EncoderParameter;
 
                 // for the Quality parameter category.
-                myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                Encoder = System.Drawing.Imaging.Encoder.Quality;
                 // EncoderParameter object in the array.
-                myEncoderParameters = new EncoderParameters(1);
+                g_EncoderParameters = new EncoderParameters(1);
                 //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
-                myEncoderParameter = new EncoderParameter(myEncoder, 75L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
+                EncoderParameter = new EncoderParameter(Encoder, 75L);
+                g_EncoderParameters.Param[0] = EncoderParameter;
                 //*************************************保存图像时编码设置结束***********************************************
 
-                m_Image_Extension = "jpg";
-                item.Checked = true;
-                item = (ToolStripMenuItem)BMPToolStripMenuItem;
-                item.Checked = false;
-                item = (ToolStripMenuItem)PNGToolStripMenuItem;
-                item.Checked = false;
+                EnableExtensionMeneItem(1);
+            }
+            else
+            {
+            }
+        }
+
+        private void TIFFToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)TIFFToolStripMenuItem;
+
+            if (false == item.Checked) // 之前不是gif存储，则重新选择文件扩展名
+            {
+                //*************************************保存图像时编码设置***********************************************
+                //YKB 20180503 获得PNG格式的编码器
+                g_ImageCodecInfo = GetEncoderInfo("image/tiff");
+                System.Drawing.Imaging.Encoder Encoder;
+                EncoderParameter EncoderParameter;
+
+                // for the Quality parameter category.
+                Encoder = System.Drawing.Imaging.Encoder.Quality;
+                // EncoderParameter object in the array.
+                g_EncoderParameters = new EncoderParameters(1);
+                //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
+                EncoderParameter = new EncoderParameter(Encoder, 100L);
+                g_EncoderParameters.Param[0] = EncoderParameter;
+                //*************************************保存图像时编码设置结束***********************************************
+
+                EnableExtensionMeneItem(2);
+            }
+            else
+            {
+            }
+        }
+
+        private void GIFToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)GIFToolStripMenuItem;
+
+            if (false == item.Checked) // 之前不是gif存储，则重新选择文件扩展名
+            {
+                //*************************************保存图像时编码设置***********************************************
+                //YKB 20180503 获得PNG格式的编码器
+                g_ImageCodecInfo = GetEncoderInfo("image/gif");
+                System.Drawing.Imaging.Encoder Encoder;
+                EncoderParameter EncoderParameter;
+
+                // for the Quality parameter category.
+                Encoder = System.Drawing.Imaging.Encoder.Quality;
+                // EncoderParameter object in the array.
+                g_EncoderParameters = new EncoderParameters(1);
+                //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
+                EncoderParameter = new EncoderParameter(Encoder, 100L);
+                g_EncoderParameters.Param[0] = EncoderParameter;
+                //*************************************保存图像时编码设置结束***********************************************
+
+                EnableExtensionMeneItem(3);
             }
             else
             {
@@ -2587,34 +2553,30 @@ namespace CameraTool
         {
             ToolStripMenuItem item = (ToolStripMenuItem)PNGToolStripMenuItem;
 
-            if (false == item.Checked) // 之前不是jpg存储，则重新选择文件扩展名
+            if (false == item.Checked) // 之前不是png存储，则重新选择文件扩展名
             {
                 //*************************************保存图像时编码设置***********************************************
                 //YKB 20180503 获得PNG格式的编码器
-                myImageCodecInfo = GetEncoderInfo("image/png");
-                System.Drawing.Imaging.Encoder myEncoder;
-                EncoderParameter myEncoderParameter;
+                g_ImageCodecInfo = GetEncoderInfo("image/png");
+                System.Drawing.Imaging.Encoder Encoder;
+                EncoderParameter EncoderParameter;
 
                 // for the Quality parameter category.
-                myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                Encoder = System.Drawing.Imaging.Encoder.Quality;
                 // EncoderParameter object in the array.
-                myEncoderParameters = new EncoderParameters(1);
+                g_EncoderParameters = new EncoderParameters(1);
                 //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
-                myEncoderParameter = new EncoderParameter(myEncoder, 100L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
+                EncoderParameter = new EncoderParameter(Encoder, 100L);
+                g_EncoderParameters.Param[0] = EncoderParameter;
                 //*************************************保存图像时编码设置结束***********************************************
 
-                m_Image_Extension = "png";
-                item.Checked = true;
-                item = (ToolStripMenuItem)JPGToolStripMenuItem;
-                item.Checked = false;
-                item = (ToolStripMenuItem)BMPToolStripMenuItem;
-                item.Checked = false;
+                EnableExtensionMeneItem(4);
             }
             else
             {
             }
         }
+
 
         private void noiseCalculationToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -2629,6 +2591,82 @@ namespace CameraTool
                 m_NoiseCalculationEna = true;
                 ToolStripMenuItem item = (ToolStripMenuItem)noiseCalculationToolStripMenuItem;
                 item.Checked = true;
+            }
+        }
+
+        // YKB 20180510 修改网格线显示（以一个像素宽的PictureBox控件为网格线）
+        private void ShowGridtoolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!m_Show_Grid)
+            {
+                ToolStripMenuItem item = (ToolStripMenuItem)ShowGridtoolStripMenuItem;
+                item.Checked = true;
+
+                Rectangle rc = pictBDisplay.Bounds; // 获取图像显示窗口的包络
+
+
+                StringBuilder sb = new StringBuilder(255);
+                GetPrivateProfileString("Grid", "GridH", "5", sb, 255, g_ConfigPath); // 水平线条数
+                int LineH = int.Parse(sb.ToString()); // 读取配置文件中的整数值
+                GetPrivateProfileString("Grid", "GridV", "1", sb, 255, g_ConfigPath); // 垂直线条数
+                int LineV = int.Parse(sb.ToString());
+                LineH = LineH < 0 ? 0 : LineH;
+                LineV = LineV < 0 ? 0 : LineV;
+
+                for (int i = 0; i < LineH; i++) // 水平网格线
+                {
+
+                    PictureBox pictureBoxGrid = new PictureBox();
+                    pictureBoxGrid.BackColor = Color.Red;
+                    pictureBoxGrid.Name = "pictureBoxGridH" + i.ToString();
+                    //pictureBoxGrid.Location = new Point(0, (i*rc.Height) / (LineH+1));
+                    //pictureBoxGrid.Size = new Size(rc.Width, 1);
+                    pictureBoxGrid.Width = rc.Width;
+                    pictureBoxGrid.Height = 1;
+                    pictureBoxGrid.Top = ((i + 1) * rc.Height) / (LineH + 1);
+                    pictureBoxGrid.Left = 0;
+                    pictureBoxGrid.TabIndex = 9;
+                    pictureBoxGrid.TabStop = false;
+                    pictureBoxGrid.Visible = true;
+                    pictBDisplay.Controls.Add(pictureBoxGrid);
+                }
+
+                for (int i = 0; i < LineV; i++) // 垂直网格线
+                {
+
+                    PictureBox pictureBoxGrid = new PictureBox();
+                    pictureBoxGrid.BackColor = Color.Green;
+                    pictureBoxGrid.Name = "pictureBoxGridV" + i.ToString();
+                    //pictureBoxGrid.Location = new Point((i * rc.Width) / (LineV + 1), 0);
+                    //pictureBoxGrid.Size = new Size(1, rc.height);
+                    pictureBoxGrid.Width = 2;
+                    pictureBoxGrid.Height = rc.Height;
+                    pictureBoxGrid.Top = 0;
+                    pictureBoxGrid.Left = ((i + 1) * rc.Width) / (LineV + 1);
+                    pictureBoxGrid.TabIndex = 9;
+                    pictureBoxGrid.TabStop = false;
+                    pictureBoxGrid.Visible = true;
+                    pictBDisplay.Controls.Add(pictureBoxGrid);
+                }
+
+                m_Show_Grid = true;
+            }
+            else
+            {
+                ToolStripMenuItem item = (ToolStripMenuItem)ShowGridtoolStripMenuItem;
+                item.Checked = false;
+
+                // 删除网格线
+                for (int i = pictBDisplay.Controls.Count - 1; i >= 0; i--)
+                {
+                    Control ctl = pictBDisplay.Controls[i];
+                    if (ctl.Name.Contains("pictureBoxGrid"))
+                    {
+                        pictBDisplay.Controls.RemoveAt(i);
+                    }
+                    //pictBDisplay.Controls.RemoveAt(i);
+                }
+                m_Show_Grid = false;
             }
         }
 
@@ -2954,6 +2992,19 @@ namespace CameraTool
         {
             if (!m_SaveAllImage)
             {
+                StringBuilder sb = new StringBuilder(255);
+                //判断是否存在配置文件
+                if (!File.Exists(g_ConfigPath))
+                {
+                    WriteProfileDefault(g_ConfigPath);
+                }
+
+                //路径设置
+                GetPrivateProfileString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SavePath = sb.ToString();
+                GetPrivateProfileString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
+                g_SaveSuffix = sb.ToString();
+
                 iNumDiff = 0;
                 iLastFrameCount = capture.FrameCount; // 记录保存图像时当前帧数
                 m_SaveFrameToFile = false; // 准备图像采集
@@ -2970,6 +3021,50 @@ namespace CameraTool
                 //MessageBox.Show("保存图像结束！");
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";
                 captureImageToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void WriteProfileDefault(string ConfigPath)
+        {
+            WritePrivateProfileString("Save", "SavePath", ".\\image", g_ConfigPath); // YKB 20180428 图像保存目录
+            WritePrivateProfileString("Save", "SaveSuffix", "", g_ConfigPath);  // YKB 20180428 图像保存后缀名
+            WritePrivateProfileString("Grid", "GridH", "5", g_ConfigPath); // YKB 20180510 水平线条数
+            WritePrivateProfileString("Grid", "GridV", "1", g_ConfigPath); // YKB 20180510 垂直线条数
+        }
+
+        private void EnableExtensionMeneItem(int index)
+        {
+            BMPToolStripMenuItem.Checked = false;
+            JPGToolStripMenuItem.Checked = false;
+            TIFFToolStripMenuItem.Checked = false;
+            GIFToolStripMenuItem.Checked = false;
+            PNGToolStripMenuItem.Checked = false;
+            switch(index)
+            {
+                case 0:
+                    BMPToolStripMenuItem.Checked = true;
+                    m_Image_Extension = "bmp";
+                    break;
+                case 1:
+                    JPGToolStripMenuItem.Checked = true;
+                    m_Image_Extension = "jpg";
+                    break;
+                case 2:
+                    TIFFToolStripMenuItem.Checked = true;
+                    m_Image_Extension = "tif";
+                    break;
+                case 3:
+                    GIFToolStripMenuItem.Checked = true;
+                    m_Image_Extension = "gif";
+                    break;
+                case 4:
+                    PNGToolStripMenuItem.Checked = true;
+                    m_Image_Extension = "png";
+                    break;
+                default:
+                    m_Image_Extension = "jpg";
+                    JPGToolStripMenuItem.Checked = true;
+                    break;
             }
         }
 

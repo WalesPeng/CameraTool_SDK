@@ -48,7 +48,7 @@ namespace CameraTool
 
         private bool mRAWDisplay = true;
         private bool m_TriggerMode = false;
-        private string m_Image_Extension = "jpg"; // YKB 20180507 增加存储格式选择,0 bmp;1 jpg;2 tif;3 gif;4 png
+        private string g_Image_Extension = "jpg"; // YKB 20180507 增加存储格式选择,0 bmp;1 jpg;2 tif;3 gif;4 png
         private bool m_CaptureOneImage = false;
         private bool m_SaveAllImage = false;      //Modify by PMH 2018.4.12
         private bool m_AutoExposure = false;
@@ -174,7 +174,7 @@ namespace CameraTool
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
                     string FileName = SavePath + iNumDiff.ToString("D6") + g_SaveSuffix;
-                    FileName = Path.ChangeExtension(FileName, m_Image_Extension);
+                    FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
                     imageBmpSave.Dispose(); // 释放空间，因为在图像获取时创建了空间
@@ -191,7 +191,7 @@ namespace CameraTool
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
                     string FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff");
-                    FileName = Path.ChangeExtension(FileName, m_Image_Extension);
+                    FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
                     imageBmpSave.Dispose();
@@ -2635,11 +2635,11 @@ namespace CameraTool
                 {
 
                     PictureBox pictureBoxGrid = new PictureBox();
-                    pictureBoxGrid.BackColor = Color.Green;
+                    pictureBoxGrid.BackColor = Color.Red;
                     pictureBoxGrid.Name = "pictureBoxGridV" + i.ToString();
                     //pictureBoxGrid.Location = new Point((i * rc.Width) / (LineV + 1), 0);
                     //pictureBoxGrid.Size = new Size(1, rc.height);
-                    pictureBoxGrid.Width = 2;
+                    pictureBoxGrid.Width = 1;
                     pictureBoxGrid.Height = rc.Height;
                     pictureBoxGrid.Top = 0;
                     pictureBoxGrid.Left = ((i + 1) * rc.Width) / (LineV + 1);
@@ -3043,26 +3043,26 @@ namespace CameraTool
             {
                 case 0:
                     BMPToolStripMenuItem.Checked = true;
-                    m_Image_Extension = "bmp";
+                    g_Image_Extension = "bmp";
                     break;
                 case 1:
                     JPGToolStripMenuItem.Checked = true;
-                    m_Image_Extension = "jpg";
+                    g_Image_Extension = "jpg";
                     break;
                 case 2:
                     TIFFToolStripMenuItem.Checked = true;
-                    m_Image_Extension = "tif";
+                    g_Image_Extension = "tif";
                     break;
                 case 3:
                     GIFToolStripMenuItem.Checked = true;
-                    m_Image_Extension = "gif";
+                    g_Image_Extension = "gif";
                     break;
                 case 4:
                     PNGToolStripMenuItem.Checked = true;
-                    m_Image_Extension = "png";
+                    g_Image_Extension = "png";
                     break;
                 default:
-                    m_Image_Extension = "jpg";
+                    g_Image_Extension = "jpg";
                     JPGToolStripMenuItem.Checked = true;
                     break;
             }

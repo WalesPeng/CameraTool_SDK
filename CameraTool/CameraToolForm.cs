@@ -333,7 +333,7 @@ namespace CameraTool
                     if (m_AutoTriggerPrevCnt != m_AutoTriggerCnt)
                     {
                         TimeSpan tsAutoTrigger = triggerEndTime - triggerStartTime;
-                        statusToolStripStatusLabel.Text += "  Capture Latency: " + (tsAutoTrigger.Seconds * 1000 + tsAutoTrigger.Milliseconds).ToString() + " ms"; // Capture Latency (including exposure time)
+                        //statusToolStripStatusLabel.Text += "  Capture Latency: " + (tsAutoTrigger.Seconds * 1000 + tsAutoTrigger.Milliseconds).ToString() + " ms"; // Capture Latency (including exposure time)
 
                         m_AutoTriggerPrevCnt = m_AutoTriggerCnt;
 
@@ -1544,10 +1544,8 @@ namespace CameraTool
                 }
                 StringBuilder sb = new StringBuilder(255);
                 //路径设置
-                GetPrivateProfileString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
-                g_SavePath = sb.ToString();
-                GetPrivateProfileString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
-                g_SaveSuffix = sb.ToString();
+                g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 
                 softTriggerToolStripMenuItem.Enabled = false;
                 captureImageToolStripMenuItem.Enabled = true;
@@ -2604,25 +2602,36 @@ namespace CameraTool
 
                 Rectangle rc = pictBDisplay.Bounds; // 获取图像显示窗口的包络
 
+                //判断是否存在配置文件
+                if (!File.Exists(g_ConfigPath))
+                {
+                    WriteProfileDefault(g_ConfigPath);
+                }
 
                 StringBuilder sb = new StringBuilder(255);
-                GetPrivateProfileString("Grid", "GridH", "5", sb, 255, g_ConfigPath); // 水平线条数
-                int LineH = int.Parse(sb.ToString()); // 读取配置文件中的整数值
-                GetPrivateProfileString("Grid", "GridV", "1", sb, 255, g_ConfigPath); // 垂直线条数
-                int LineV = int.Parse(sb.ToString());
+                int LineH = ReadKeysInt("Grid", "GridH", "5", sb, 255, g_ConfigPath); // 水平线条数
+                int LineV = ReadKeysInt("Grid", "GridV", "1", sb, 255, g_ConfigPath); // 垂直线条数
+                int Thickness = ReadKeysInt("Grid", "Thickness", "1", sb, 255, g_ConfigPath); // 线条粗细
+                byte A = (byte)ReadKeysInt("Grid", "ColorA", "255", sb, 255, g_ConfigPath); // 颜色分量A
+                byte R = (byte)ReadKeysInt("Grid", "ColorR", "255", sb, 255, g_ConfigPath); // 颜色分量R
+                byte G = (byte)ReadKeysInt("Grid", "ColorG", "0", sb, 255, g_ConfigPath); // 颜色分量G
+                byte B = (byte)ReadKeysInt("Grid", "ColorB", "0", sb, 255, g_ConfigPath); // 颜色分量B
                 LineH = LineH < 0 ? 0 : LineH;
                 LineV = LineV < 0 ? 0 : LineV;
-
+                if (LineH > 50 || LineV > 50)
+                {
+                    MessageBox.Show("过多网格线可能会导致界面卡顿！！！", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 for (int i = 0; i < LineH; i++) // 水平网格线
                 {
 
                     PictureBox pictureBoxGrid = new PictureBox();
-                    pictureBoxGrid.BackColor = Color.Red;
+                    pictureBoxGrid.BackColor = Color.FromArgb(A, R, G, B);
                     pictureBoxGrid.Name = "pictureBoxGridH" + i.ToString();
                     //pictureBoxGrid.Location = new Point(0, (i*rc.Height) / (LineH+1));
                     //pictureBoxGrid.Size = new Size(rc.Width, 1);
                     pictureBoxGrid.Width = rc.Width;
-                    pictureBoxGrid.Height = 1;
+                    pictureBoxGrid.Height = Thickness;
                     pictureBoxGrid.Top = ((i + 1) * rc.Height) / (LineH + 1);
                     pictureBoxGrid.Left = 0;
                     pictureBoxGrid.TabIndex = 9;
@@ -2635,11 +2644,11 @@ namespace CameraTool
                 {
 
                     PictureBox pictureBoxGrid = new PictureBox();
-                    pictureBoxGrid.BackColor = Color.Red;
+                    pictureBoxGrid.BackColor = Color.FromArgb(A, R, G, B);
                     pictureBoxGrid.Name = "pictureBoxGridV" + i.ToString();
                     //pictureBoxGrid.Location = new Point((i * rc.Width) / (LineV + 1), 0);
                     //pictureBoxGrid.Size = new Size(1, rc.height);
-                    pictureBoxGrid.Width = 1;
+                    pictureBoxGrid.Width = Thickness;
                     pictureBoxGrid.Height = rc.Height;
                     pictureBoxGrid.Top = 0;
                     pictureBoxGrid.Left = ((i + 1) * rc.Width) / (LineV + 1);
@@ -2648,7 +2657,7 @@ namespace CameraTool
                     pictureBoxGrid.Visible = true;
                     pictBDisplay.Controls.Add(pictureBoxGrid);
                 }
-
+                sb.Remove(0, sb.Length);
                 m_Show_Grid = true;
             }
             else
@@ -3000,10 +3009,8 @@ namespace CameraTool
                 }
 
                 //路径设置
-                GetPrivateProfileString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
-                g_SavePath = sb.ToString();
-                GetPrivateProfileString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
-                g_SaveSuffix = sb.ToString();
+                g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 
                 iNumDiff = 0;
                 iLastFrameCount = capture.FrameCount; // 记录保存图像时当前帧数
@@ -3022,14 +3029,6 @@ namespace CameraTool
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";
                 captureImageToolStripMenuItem.Enabled = true;
             }
-        }
-
-        private void WriteProfileDefault(string ConfigPath)
-        {
-            WritePrivateProfileString("Save", "SavePath", ".\\image", g_ConfigPath); // YKB 20180428 图像保存目录
-            WritePrivateProfileString("Save", "SaveSuffix", "", g_ConfigPath);  // YKB 20180428 图像保存后缀名
-            WritePrivateProfileString("Grid", "GridH", "5", g_ConfigPath); // YKB 20180510 水平线条数
-            WritePrivateProfileString("Grid", "GridV", "1", g_ConfigPath); // YKB 20180510 垂直线条数
         }
 
         private void EnableExtensionMeneItem(int index)
@@ -3074,6 +3073,41 @@ namespace CameraTool
         private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
         [DllImport("kernel32")] // 读取配置文件的接口
         private static extern int GetPrivateProfileString(string section, string key, string def,StringBuilder retVal, int size, string filePath);
+
+
+        private void WriteProfileDefault(string ConfigPath)
+        {
+            WritePrivateProfileString("Save", "SavePath", ".\\image", ConfigPath); // YKB 20180428 图像保存目录
+            WritePrivateProfileString("Save", "SaveSuffix", "", ConfigPath);  // YKB 20180428 图像保存后缀名
+            WritePrivateProfileString("Grid", "GridH", "5", ConfigPath); // YKB 20180510 水平线条数
+            WritePrivateProfileString("Grid", "GridV", "1", ConfigPath); // YKB 20180510 垂直线条数
+            WritePrivateProfileString("Grid", "Thickness", "1", ConfigPath); // YKB 20180516 网格线粗细
+            WritePrivateProfileString("Grid", "ColorA", "255", ConfigPath); // YKB 20180516 颜色分量A
+            WritePrivateProfileString("Grid", "ColorR", "255", ConfigPath); // YKB 20180516 颜色分量R
+            WritePrivateProfileString("Grid", "ColorG", "0", ConfigPath); // YKB 20180516 颜色分量G
+            WritePrivateProfileString("Grid", "ColorB", "0", ConfigPath); // YKB 20180516 颜色分量B
+        }
+
+        private int ReadKeysInt(string section, string key, string def, StringBuilder retVal, int size, string filePath)
+        {
+            GetPrivateProfileString(section, key, def, retVal, size, filePath);
+            if (0 == retVal.Length)
+            {
+                return 0;
+            }
+            return int.Parse(retVal.ToString());
+        }
+
+        private string ReadKeysString(string section, string key, string def, StringBuilder retVal, int size, string filePath)
+        {
+            GetPrivateProfileString(section, key, def, retVal, size, filePath);
+            if (0 == retVal.Length)
+            {
+                return "";
+            }
+            return retVal.ToString();
+        }
+
         //*************************************配置文件操作结束***********************************************
 
         //*************************************获取图像编码***********************************************

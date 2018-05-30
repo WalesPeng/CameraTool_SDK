@@ -19,6 +19,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 using LeopardCamera;
 using PluginInterface;
@@ -122,6 +123,10 @@ namespace CameraTool
 
         public CameraToolForm()
         {
+            Process p = null;
+            p = Process.GetCurrentProcess();
+            p.PriorityClass = ProcessPriorityClass.RealTime; // YKB 20180529 将当前程序优先级设置成实时（未修改前是标准）
+
             InitializeComponent(); // YKB 20180420 菜单初始化
 
             AddPluginMenu(); // YKB 20180420 初始化插件菜单显示
@@ -177,7 +182,8 @@ namespace CameraTool
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
-                    imageBmpSave.Dispose(); // 释放空间，因为在图像获取时创建了空间
+                    //imageBmpSave.Dispose(); // 释放空间，因为在图像获取时创建了空间（如果是在点击保存时创建空间则此处不能释放空间）
+
                     m_SaveFrameToFile = false; // 先交给回调函数采集图像，同时该线程保存图片
                 }
                 //*************************************连续存储结束***********************************************
@@ -1033,15 +1039,22 @@ namespace CameraTool
         {
             if (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV
                 || m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV_DUAL)
-                imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP(pBuffer, width, height, MarkEn, (pictureBoxCenter.Top * height / pictBDisplay.Height) * width + pictureBoxCenter.Left * width / pictBDisplay.Width,
-                                                                                       (pictureBoxTopLeft.Top * height / pictBDisplay.Height) * width + pictureBoxTopLeft.Left * width / pictBDisplay.Width,
-                                                                                       (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
-                                                                                       (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
-                                                                                       (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
+                imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP_YKB(pBuffer, width, height, imageBmpSave, MarkEn, (pictureBoxCenter.Top * height / pictBDisplay.Height) * width + pictureBoxCenter.Left * width / pictBDisplay.Width,
+                                                                        (pictureBoxTopLeft.Top * height / pictBDisplay.Height) * width + pictureBoxTopLeft.Left * width / pictBDisplay.Width,
+                                                                        (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
+                                                                        (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
+                                                                        (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
+            //imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP(pBuffer, width, height, MarkEn, (pictureBoxCenter.Top * height / pictBDisplay.Height) * width + pictureBoxCenter.Left * width / pictBDisplay.Width,
+            //                                                            (pictureBoxTopLeft.Top * height / pictBDisplay.Height) * width + pictureBoxTopLeft.Left * width / pictBDisplay.Width,
+            //                                                            (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
+            //                                                            (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
+            //                                                            (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
             else
             {
-                imageBmpSave = LeopardCamera.Tools.ConvertBayer2BMP(pBuffer, width, height, bpp, (int)m_pixelOrder, 1.6, m_MonoSensor,
-                    (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL));
+                //imageBmpSave = LeopardCamera.Tools.ConvertBayer2BMP(pBuffer, width, height, bpp, (int)m_pixelOrder, 1.6, m_MonoSensor,
+                //                                                    (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL));
+                imageBmpSave = LeopardCamera.Tools.ConvertBayer2BMP_YKB(pBuffer, width, height, imageBmpSave, bpp, (int)m_pixelOrder, 1.6, m_MonoSensor,
+                                                                        (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL));
             }
         }
 
@@ -1699,6 +1712,7 @@ namespace CameraTool
             }
             else
             {
+                imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
                 m_SaveFrameToFile = false; // 准备图像采集
                 m_CaptureOneImage = true; // 单帧存储使能
             }
@@ -3012,6 +3026,8 @@ namespace CameraTool
                 g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
                 g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 
+                imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
                 iNumDiff = 0;
                 iLastFrameCount = capture.FrameCount; // 记录保存图像时当前帧数
                 m_SaveFrameToFile = false; // 准备图像采集
@@ -3024,7 +3040,8 @@ namespace CameraTool
             else
             {
                 m_SaveAllImage = false;
-
+                                Delayms(100);
+                imageBmpSave.Dispose();
                 //MessageBox.Show("保存图像结束！");
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";
                 captureImageToolStripMenuItem.Enabled = true;
@@ -3124,5 +3141,14 @@ namespace CameraTool
             return null;
         }
         //*************************************获取图像编码结束***********************************************
+
+        public void Delayms(int milliSecond)
+        {
+            int start = Environment.TickCount;
+            while (Math.Abs(Environment.TickCount - start) < milliSecond)
+            {
+                Application.DoEvents();
+            }
+        }
     }
 }

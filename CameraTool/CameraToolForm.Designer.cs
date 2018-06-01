@@ -47,6 +47,8 @@
             this.BMPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.JPGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PNGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.GIFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TIFFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -108,8 +110,6 @@
             this.toolStripStatusLabelTN = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFPN = new System.Windows.Forms.ToolStripStatusLabel();
-            this.GIFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TIFFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -271,23 +271,37 @@
             // BMPToolStripMenuItem
             // 
             this.BMPToolStripMenuItem.Name = "BMPToolStripMenuItem";
-            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.BMPToolStripMenuItem.Text = "bmp";
             this.BMPToolStripMenuItem.Click += new System.EventHandler(this.BMPToolStripMenuItem_Click);
             // 
             // JPGToolStripMenuItem
             // 
             this.JPGToolStripMenuItem.Name = "JPGToolStripMenuItem";
-            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.JPGToolStripMenuItem.Text = "jpg";
             this.JPGToolStripMenuItem.Click += new System.EventHandler(this.JPGToolStripMenuItem_Click);
             // 
             // PNGToolStripMenuItem
             // 
             this.PNGToolStripMenuItem.Name = "PNGToolStripMenuItem";
-            this.PNGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.PNGToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.PNGToolStripMenuItem.Text = "png";
             this.PNGToolStripMenuItem.Click += new System.EventHandler(this.PNGToolStripMenuItem_Click);
+            // 
+            // GIFToolStripMenuItem
+            // 
+            this.GIFToolStripMenuItem.Name = "GIFToolStripMenuItem";
+            this.GIFToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.GIFToolStripMenuItem.Text = "gif";
+            this.GIFToolStripMenuItem.Click += new System.EventHandler(this.GIFToolStripMenuItem_Click);
+            // 
+            // TIFFToolStripMenuItem
+            // 
+            this.TIFFToolStripMenuItem.Name = "TIFFToolStripMenuItem";
+            this.TIFFToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.TIFFToolStripMenuItem.Text = "tiff";
+            this.TIFFToolStripMenuItem.Click += new System.EventHandler(this.TIFFToolStripMenuItem_Click);
             // 
             // saveAllImageToolStripMenuItem
             // 
@@ -748,20 +762,6 @@
             this.toolStripStatusLabelFPN.Name = "toolStripStatusLabelFPN";
             this.toolStripStatusLabelFPN.Size = new System.Drawing.Size(15, 17);
             this.toolStripStatusLabelFPN.Text = "0";
-            // 
-            // GIFToolStripMenuItem
-            // 
-            this.GIFToolStripMenuItem.Name = "GIFToolStripMenuItem";
-            this.GIFToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.GIFToolStripMenuItem.Text = "gif";
-            this.GIFToolStripMenuItem.Click += new System.EventHandler(this.GIFToolStripMenuItem_Click);
-            // 
-            // TIFFToolStripMenuItem
-            // 
-            this.TIFFToolStripMenuItem.Name = "TIFFToolStripMenuItem";
-            this.TIFFToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.TIFFToolStripMenuItem.Text = "tiff";
-            this.TIFFToolStripMenuItem.Click += new System.EventHandler(this.TIFFToolStripMenuItem_Click);
             // 
             // CameraToolForm
             // 

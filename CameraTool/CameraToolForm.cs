@@ -117,6 +117,7 @@ namespace CameraTool
         string g_ConfigPath = ""; // YKB 20180428 配置文件路径
         string g_SavePath = ""; // YKB 20180510 图片保存路径
         string g_SaveSuffix = ""; // YKB 20180510 文件后缀
+        string FileName = ""; // 图片路径和名称
 
         int LineH = 5;
         int LineV = 1;
@@ -182,7 +183,7 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    string FileName = SavePath + iNumDiff.ToString("D6") + g_SaveSuffix;
+                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddhhmmssfff") + "_" + iNumDiff.ToString("D6") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
@@ -200,11 +201,11 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    string FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff");
+                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
-                    imageBmpSave.Dispose();
+                    //imageBmpSave.Dispose();
                     m_CaptureOneImage = false; // 保存一次则退出
                     m_SaveFrameToFile = false;
                 }
@@ -363,6 +364,8 @@ namespace CameraTool
                 }
                 toolStripStatusLabelTN.Text = "-";// m_RectTN.ToString("F1");
                 //toolStripStatusLabelFPN.Text = "-";// m_RectFPN.ToString("F1");
+
+                toolStripStatusLabelpath.Text = FileName;
 
                 //*************************************参数设置***********************************************
                 // 参数在其他地方获取，统一在此处设置
@@ -874,6 +877,7 @@ namespace CameraTool
                 saveAllImageToolStripMenuItem.Enabled = true;
 
                 m_AutoTrigger = false;
+                imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
                 this.KeyPreview = true;//为了使OnKeyDown事件有效
 
@@ -1585,7 +1589,7 @@ namespace CameraTool
 
             myEncoder = System.Drawing.Imaging.Encoder.Quality; // 编码器质量参数选择
             g_EncoderParameters = new EncoderParameters(1); // 由于保存图片时函数只接受EncoderParameters参数，因此新建一个元素的参数数组
-            myEncoderParameter = new EncoderParameter(myEncoder, 75L); // 设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
+            myEncoderParameter = new EncoderParameter(myEncoder, 90L); // 设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
             g_EncoderParameters.Param[0] = myEncoderParameter;
             //*************************************保存图像时编码设置 结束***********************************************
 
@@ -1611,10 +1615,59 @@ namespace CameraTool
         protected override void OnKeyDown(KeyEventArgs e)
         {
             //if (e.Control & e.KeyCode == Keys.F)//ctrl+f  
-            if (e.KeyCode == Keys.Space) // Space 开启停止保存图像 
+            if (e.KeyCode == Keys.Space) // C 采集图像 
             {
-                saveAllImageToolStripMenuItem_Click(null, null);
+                if (e.Control)
+                {
+                    saveAllImageToolStripMenuItem_Click(null, null); // 连续采集，为防止误操作采用Control+键值判断
+                }
+                else
+                {
+                    if (!m_CaptureOneImage) // 当前未处于保存模式
+                    {
+                        captureImageToolStripMenuItem_Click(null, null); // 单帧采集
+                    }
+                }
             }
+            if (e.KeyCode == Keys.G) // G 开启关闭网格线显示
+            {
+                ShowGridtoolStripMenuItem_Click(null, null);
+            }
+
+            if (e.KeyCode == Keys.T) // T 开启关闭自动触发
+            {
+                autoTriggerToolStripMenuItem_Click(null, null);
+            }
+            if (e.KeyCode == Keys.F) // F 开启关闭下降沿触发
+            {
+                negativeEdgeToolStripMenuItem_Click(null, null);
+            }
+            if (e.KeyCode == Keys.H) // H 开启关闭上升沿触发
+            {
+                positiveEdgeToolStripMenuItem_Click(null, null);
+            }
+
+            if (e.KeyCode == Keys.D1 || e.KeyCode == Keys.NumPad1) // 1 选择bmp格式
+            {
+                BMPToolStripMenuItem_Click(null, null);
+            }
+            if (e.KeyCode == Keys.D2 || e.KeyCode == Keys.NumPad2) // 2 选择jpg格式，默认选项
+            {
+                JPGToolStripMenuItem_Click(null, null);
+            }
+            if (e.KeyCode == Keys.D3 || e.KeyCode == Keys.NumPad3) // 3 选择png格式
+            {
+                PNGToolStripMenuItem_Click(null, null);
+            }
+            if (e.KeyCode == Keys.D4 || e.KeyCode == Keys.NumPad4) // 4 选择gif格式
+            {
+                GIFToolStripMenuItem_Click(null, null);
+            }
+            if (e.KeyCode == Keys.D5 || e.KeyCode == Keys.NumPad5) // 5 选择tiff格式
+            {
+                TIFFToolStripMenuItem_Click(null, null);
+            }
+            
         }
 
         /// <summary>
@@ -1670,7 +1723,7 @@ namespace CameraTool
         private byte[] savedImageBuf = new byte[65536];
         private int bufIndex = 0;
 
-        private void captureImageToolStripMenuItem_Click(object sender, EventArgs e)
+        private void captureImageToolStripMenuItem_Click(object sender, EventArgs e) // 单帧存图
         {
             byte packetLen = 0;
             byte[] imageBuf = new byte[65536];
@@ -1753,7 +1806,17 @@ namespace CameraTool
             }
             else
             {
-                imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                StringBuilder sb = new StringBuilder(255);
+                //判断是否存在配置文件
+                if (!File.Exists(g_ConfigPath))
+                {
+                    WriteProfileDefault(g_ConfigPath);
+                }
+                g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
+
+                //imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
                 m_SaveFrameToFile = false; // 准备图像采集
                 m_CaptureOneImage = true; // 单帧存储使能
             }
@@ -2535,7 +2598,7 @@ namespace CameraTool
                 // EncoderParameter object in the array.
                 g_EncoderParameters = new EncoderParameters(1);
                 //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
-                EncoderParameter = new EncoderParameter(Encoder, 75L);
+                EncoderParameter = new EncoderParameter(Encoder, 90L);
                 g_EncoderParameters.Param[0] = EncoderParameter;
                 //*************************************保存图像时编码设置结束***********************************************
 
@@ -3067,7 +3130,7 @@ namespace CameraTool
                 g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
                 g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 
-                imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                //imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
                 iNumDiff = 0;
                 iLastFrameCount = capture.FrameCount; // 记录保存图像时当前帧数
@@ -3077,12 +3140,16 @@ namespace CameraTool
                 //MessageBox.Show("开始保存图像..."); // YKB 20180421 modify 修改每帧图像保存时菜单状态
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage ... ... ";
                 captureImageToolStripMenuItem.Enabled = false;
+                Delayms(500);
             }
             else
             {
                 m_SaveAllImage = false;
-                                Delayms(100);
-                imageBmpSave.Dispose();
+                Delayms(500);
+                //if (imageBmpSave != null)
+                //{
+                //    imageBmpSave.Dispose();
+                //}
                 //MessageBox.Show("保存图像结束！");
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage";
                 captureImageToolStripMenuItem.Enabled = true;
@@ -3123,6 +3190,8 @@ namespace CameraTool
                     JPGToolStripMenuItem.Checked = true;
                     break;
             }
+
+            toolStripStatusLabelImageExtension.Text = g_Image_Extension;
         }
 
         //*************************************配置文件操作***********************************************

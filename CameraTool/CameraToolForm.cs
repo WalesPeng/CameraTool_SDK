@@ -166,7 +166,7 @@ namespace CameraTool
         }
         private void thread_saveimage() // YKB 20180423 add 为存图专门新建一个线程
         {
-            string SubPath = DateTime.Now.ToString("yyyyMMddhhmmss"); // YKB 20180507 连续存图时的子文件夹前缀
+            string SubPath = DateTime.Now.ToString("yyyyMMddHHmmss"); // YKB 20180507 连续存图时的子文件夹前缀
             while (true)
             {
                 Thread.Sleep(1);
@@ -183,7 +183,7 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddhhmmssfff") + "_" + iNumDiff.ToString("D6") + g_SaveSuffix;
+                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + iNumDiff.ToString("D6") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
@@ -201,7 +201,7 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff") + g_SaveSuffix;
+                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
@@ -1603,7 +1603,7 @@ namespace CameraTool
             }
             StringBuilder sb = new StringBuilder(255);
             //路径设置
-            g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+            g_SavePath = ReadKeysString("Save", "SavePath", ".\\img", sb, 255, g_ConfigPath);
             g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 #if true
             //m_AutoExposure = true;
@@ -1812,7 +1812,7 @@ namespace CameraTool
                 {
                     WriteProfileDefault(g_ConfigPath);
                 }
-                g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SavePath = ReadKeysString("Save", "SavePath", ".\\img", sb, 255, g_ConfigPath);
                 g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 
                 //imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -3127,7 +3127,7 @@ namespace CameraTool
                 }
 
                 //路径设置
-                g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
+                g_SavePath = ReadKeysString("Save", "SavePath", ".\\img", sb, 255, g_ConfigPath);
                 g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 
                 //imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -3204,7 +3204,7 @@ namespace CameraTool
 
         private void WriteProfileDefault(string ConfigPath)
         {
-            WritePrivateProfileString("Save", "SavePath", ".\\image", ConfigPath); // YKB 20180428 图像保存目录
+            WritePrivateProfileString("Save", "SavePath", ".\\img", ConfigPath); // YKB 20180428 图像保存目录
             WritePrivateProfileString("Save", "SaveSuffix", "", ConfigPath);  // YKB 20180428 图像保存后缀名
             WritePrivateProfileString("Grid", "GridH", "5", ConfigPath); // YKB 20180510 水平线条数
             WritePrivateProfileString("Grid", "GridV", "1", ConfigPath); // YKB 20180510 垂直线条数

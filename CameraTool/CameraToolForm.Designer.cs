@@ -47,6 +47,8 @@
             this.BMPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.JPGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PNGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.GIFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TIFFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -108,8 +110,10 @@
             this.toolStripStatusLabelTN = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFPN = new System.Windows.Forms.ToolStripStatusLabel();
-            this.GIFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TIFFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelImageExtension = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel13 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelpath = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -135,7 +139,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(619, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(565, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -271,23 +275,37 @@
             // BMPToolStripMenuItem
             // 
             this.BMPToolStripMenuItem.Name = "BMPToolStripMenuItem";
-            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.BMPToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.BMPToolStripMenuItem.Text = "bmp";
             this.BMPToolStripMenuItem.Click += new System.EventHandler(this.BMPToolStripMenuItem_Click);
             // 
             // JPGToolStripMenuItem
             // 
             this.JPGToolStripMenuItem.Name = "JPGToolStripMenuItem";
-            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.JPGToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.JPGToolStripMenuItem.Text = "jpg";
             this.JPGToolStripMenuItem.Click += new System.EventHandler(this.JPGToolStripMenuItem_Click);
             // 
             // PNGToolStripMenuItem
             // 
             this.PNGToolStripMenuItem.Name = "PNGToolStripMenuItem";
-            this.PNGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.PNGToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.PNGToolStripMenuItem.Text = "png";
             this.PNGToolStripMenuItem.Click += new System.EventHandler(this.PNGToolStripMenuItem_Click);
+            // 
+            // GIFToolStripMenuItem
+            // 
+            this.GIFToolStripMenuItem.Name = "GIFToolStripMenuItem";
+            this.GIFToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.GIFToolStripMenuItem.Text = "gif";
+            this.GIFToolStripMenuItem.Click += new System.EventHandler(this.GIFToolStripMenuItem_Click);
+            // 
+            // TIFFToolStripMenuItem
+            // 
+            this.TIFFToolStripMenuItem.Name = "TIFFToolStripMenuItem";
+            this.TIFFToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.TIFFToolStripMenuItem.Text = "tiff";
+            this.TIFFToolStripMenuItem.Click += new System.EventHandler(this.TIFFToolStripMenuItem_Click);
             // 
             // saveAllImageToolStripMenuItem
             // 
@@ -521,7 +539,7 @@
             this.statusStrip1.Location = new System.Drawing.Point(0, 25);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(619, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(565, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -612,7 +630,7 @@
             this.pictBDisplay.Location = new System.Drawing.Point(0, 44);
             this.pictBDisplay.Margin = new System.Windows.Forms.Padding(2);
             this.pictBDisplay.Name = "pictBDisplay";
-            this.pictBDisplay.Size = new System.Drawing.Size(619, 336);
+            this.pictBDisplay.Size = new System.Drawing.Size(565, 336);
             this.pictBDisplay.TabIndex = 2;
             this.pictBDisplay.TabStop = false;
             this.pictBDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictBDisplay_MouseDown);
@@ -681,11 +699,15 @@
             this.toolStripStatusLabel8,
             this.toolStripStatusLabelTN,
             this.toolStripStatusLabel10,
-            this.toolStripStatusLabelFPN});
+            this.toolStripStatusLabelFPN,
+            this.toolStripStatusLabel12,
+            this.toolStripStatusLabelImageExtension,
+            this.toolStripStatusLabel13,
+            this.toolStripStatusLabelpath});
             this.statusStrip2.Location = new System.Drawing.Point(0, 378);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip2.Size = new System.Drawing.Size(619, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(565, 22);
             this.statusStrip2.TabIndex = 8;
             this.statusStrip2.Text = "statusStrip2";
             // 
@@ -749,25 +771,35 @@
             this.toolStripStatusLabelFPN.Size = new System.Drawing.Size(15, 17);
             this.toolStripStatusLabelFPN.Text = "0";
             // 
-            // GIFToolStripMenuItem
+            // toolStripStatusLabel12
             // 
-            this.GIFToolStripMenuItem.Name = "GIFToolStripMenuItem";
-            this.GIFToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.GIFToolStripMenuItem.Text = "gif";
-            this.GIFToolStripMenuItem.Click += new System.EventHandler(this.GIFToolStripMenuItem_Click);
+            this.toolStripStatusLabel12.Name = "toolStripStatusLabel12";
+            this.toolStripStatusLabel12.Size = new System.Drawing.Size(81, 17);
+            this.toolStripStatusLabel12.Text = " |  extension:";
             // 
-            // TIFFToolStripMenuItem
+            // toolStripStatusLabelImageExtension
             // 
-            this.TIFFToolStripMenuItem.Name = "TIFFToolStripMenuItem";
-            this.TIFFToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.TIFFToolStripMenuItem.Text = "tiff";
-            this.TIFFToolStripMenuItem.Click += new System.EventHandler(this.TIFFToolStripMenuItem_Click);
+            this.toolStripStatusLabelImageExtension.Name = "toolStripStatusLabelImageExtension";
+            this.toolStripStatusLabelImageExtension.Size = new System.Drawing.Size(27, 17);
+            this.toolStripStatusLabelImageExtension.Text = "jpg";
+            // 
+            // toolStripStatusLabel13
+            // 
+            this.toolStripStatusLabel13.Name = "toolStripStatusLabel13";
+            this.toolStripStatusLabel13.Size = new System.Drawing.Size(37, 17);
+            this.toolStripStatusLabel13.Text = "path:";
+            // 
+            // toolStripStatusLabelpath
+            // 
+            this.toolStripStatusLabelpath.Name = "toolStripStatusLabelpath";
+            this.toolStripStatusLabelpath.Size = new System.Drawing.Size(12, 17);
+            this.toolStripStatusLabelpath.Text = " ";
             // 
             // CameraToolForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(619, 400);
+            this.ClientSize = new System.Drawing.Size(565, 400);
             this.Controls.Add(this.statusStrip2);
             this.Controls.Add(this.pictureBoxBottomRight);
             this.Controls.Add(this.pictureBoxTopRight);
@@ -883,6 +915,10 @@
         private System.Windows.Forms.ToolStripStatusLabel savecounttoolStripStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem GIFToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem TIFFToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelImageExtension;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel13;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelpath;
     }
 }
 

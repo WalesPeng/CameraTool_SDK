@@ -68,6 +68,54 @@ namespace LeopardCamera
 
             return bmp;
         }
+        public static Bitmap ConvertBayer2BMP_YKB(IntPtr ptr, int iInWidth, int iHeight, Bitmap bmp, int iBits, int pixelOrder, double gamma, bool Mono, bool Dual)
+        {
+            int iWidth = iInWidth * (Dual ? 2 : 1);
+            int iSize = iWidth * iHeight * 2;
+
+            int iPadding = (iWidth * 3) % 4;
+            if (iPadding != 0)  // padding to make Bitmap.stride a multiple of 4
+                iPadding = 4 - iPadding;
+
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+                                        ImageLockMode.WriteOnly, bmp.PixelFormat);
+            IntPtr rgb = bmpData.Scan0;
+
+            unsafe
+            {
+                if (Dual)
+                {
+                    IntPtr ptr_t = Marshal.AllocHGlobal(iWidth * iHeight);
+
+                    convDualImage(ptr, ptr_t, iInWidth, iHeight);
+                    if (!Mono)
+                        raw_to_bmp(ptr_t, rgb, iWidth, iHeight, iBits, pixelOrder, (gamma != 1.0), gamma,
+                                    600, -92, -70,
+                                    -97, 389, -36,
+                                    -130, -304, 690,
+                                     0, 0, 0);
+                    else
+                        raw_to_bmp_mono(ptr_t, rgb, iWidth, iHeight, iBits, (gamma != 1.0), gamma);
+
+                    Marshal.FreeHGlobal(ptr_t);
+                }
+                else
+                {
+                    if (!Mono)
+                        raw_to_bmp(ptr, rgb, iWidth, iHeight, iBits, pixelOrder, (gamma != 1.0), gamma,
+                                    600, -92, -70,
+                                    -97, 389, -36,
+                                    -130, -304, 690,
+                                     0, 0, 0);
+                    else
+                        raw_to_bmp_mono(ptr, rgb, iWidth, iHeight, iBits, (gamma != 1.0), gamma);
+                }
+            }
+
+            bmp.UnlockBits(bmpData);
+
+            return bmp;
+        }
 
         public static void ConvertBayer2y(IntPtr ptr, int iInWidth, int iHeight, int iBits, int pixelOrder, double gamma, bool Mono, bool Dual)
         {

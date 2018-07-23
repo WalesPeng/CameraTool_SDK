@@ -166,7 +166,9 @@ namespace CameraTool
         }
         private void thread_saveimage() // YKB 20180423 add 为存图专门新建一个线程
         {
-            string SubPath = DateTime.Now.ToString("yyyyMMddhhmmss"); // YKB 20180507 连续存图时的子文件夹前缀
+            //FileStream fs = new FileStream("time.txt", FileMode.Create);
+            //StreamWriter sw = new StreamWriter(fs);
+            string SubPath = DateTime.Now.ToString("yyyyMMddHHmmss"); // YKB 20180507 连续存图时的子文件夹前缀
             while (true)
             {
                 Thread.Sleep(1);
@@ -178,18 +180,23 @@ namespace CameraTool
                 //*************************************连续存储***********************************************
                 if (m_SaveFrameToFile && m_SaveAllImage) // 连续存图和图像获取完成，则进入图像保存
                 {
+                    //System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+                    //watch.Start();  //开始监视代码运行时间
                     string SavePath = g_SavePath + "\\" + SubPath + "_" + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
                     if (!Directory.Exists(SavePath))//判断是否存在
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddhhmmssfff") + "_" + iNumDiff.ToString("D6") + g_SaveSuffix;
+                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + iNumDiff.ToString("D6") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
                     //imageBmpSave.Dispose(); // 释放空间，因为在图像获取时创建了空间（如果是在点击保存时创建空间则此处不能释放空间）
 
                     m_SaveFrameToFile = false; // 先交给回调函数采集图像，同时该线程保存图片
+                    //TimeSpan timespan = watch.Elapsed;  //获取当前实例测量得出的总时间
+                    //sw.Write(timespan.Milliseconds.ToString() + "ms\r\n");
+                    //sw.Flush();
                 }
                 //*************************************连续存储结束***********************************************
 
@@ -201,7 +208,7 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddhhmm_ss_fff") + g_SaveSuffix;
+                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddHHmm_ss_fff") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);

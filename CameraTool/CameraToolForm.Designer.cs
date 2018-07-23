@@ -92,7 +92,7 @@
             this.toolStripStatusLabelFPS = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel11 = new System.Windows.Forms.ToolStripStatusLabel();
             this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusToolStrip7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.pictBDisplay = new System.Windows.Forms.PictureBox();
             this.pictureBoxCenter = new System.Windows.Forms.PictureBox();
             this.pictureBoxTopLeft = new System.Windows.Forms.PictureBox();
@@ -101,19 +101,12 @@
             this.pictureBoxBottomRight = new System.Windows.Forms.PictureBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelPos = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelMean = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel9 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelSTD = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelTN = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelFPN = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelImageExtension = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel13 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelpath = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelSaveStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -139,7 +132,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(565, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(720, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -535,19 +528,20 @@
             this.toolStripStatusLabelFPS,
             this.toolStripStatusLabel11,
             this.savecounttoolStripStatusLabel,
+            this.statusToolStrip7,
             this.statusToolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 25);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(565, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(720, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(53, 17);
-            this.toolStripStatusLabel2.Text = "Device: ";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(49, 17);
+            this.toolStripStatusLabel2.Text = "Device:";
             // 
             // toolStripStatusLabelDevice
             // 
@@ -570,8 +564,8 @@
             // toolStripStatusLabel4
             // 
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(59, 17);
-            this.toolStripStatusLabel4.Text = "FW_Rev: ";
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(55, 17);
+            this.toolStripStatusLabel4.Text = "FW_Rev:";
             // 
             // toolStripStatusLabelFWRev
             // 
@@ -582,8 +576,8 @@
             // toolStripStatusLabel5
             // 
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(36, 17);
-            this.toolStripStatusLabel5.Text = "Res: ";
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(32, 17);
+            this.toolStripStatusLabel5.Text = "Res:";
             // 
             // toolStripStatusLabelRes
             // 
@@ -598,6 +592,7 @@
             // 
             // toolStripStatusLabelFPS
             // 
+            this.toolStripStatusLabelFPS.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
             this.toolStripStatusLabelFPS.Name = "toolStripStatusLabelFPS";
             this.toolStripStatusLabelFPS.Size = new System.Drawing.Size(25, 17);
             this.toolStripStatusLabelFPS.Text = "0.0";
@@ -610,16 +605,17 @@
             // 
             // savecounttoolStripStatusLabel
             // 
+            this.savecounttoolStripStatusLabel.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
             this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
             this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(19, 17);
             this.savecounttoolStripStatusLabel.Text = "0 ";
             this.savecounttoolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // statusToolStripStatusLabel
+            // statusToolStrip7
             // 
-            this.statusToolStripStatusLabel.Name = "statusToolStripStatusLabel";
-            this.statusToolStripStatusLabel.Size = new System.Drawing.Size(50, 17);
-            this.statusToolStripStatusLabel.Text = "Status: ";
+            this.statusToolStrip7.Name = "statusToolStrip7";
+            this.statusToolStrip7.Size = new System.Drawing.Size(46, 17);
+            this.statusToolStrip7.Text = "Status:";
             // 
             // pictBDisplay
             // 
@@ -630,7 +626,7 @@
             this.pictBDisplay.Location = new System.Drawing.Point(0, 44);
             this.pictBDisplay.Margin = new System.Windows.Forms.Padding(2);
             this.pictBDisplay.Name = "pictBDisplay";
-            this.pictBDisplay.Size = new System.Drawing.Size(565, 336);
+            this.pictBDisplay.Size = new System.Drawing.Size(720, 336);
             this.pictBDisplay.TabIndex = 2;
             this.pictBDisplay.TabStop = false;
             this.pictBDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictBDisplay_MouseDown);
@@ -691,15 +687,7 @@
             // 
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel6,
-            this.toolStripStatusLabelPos,
-            this.toolStripStatusLabel7,
-            this.toolStripStatusLabelMean,
-            this.toolStripStatusLabel9,
-            this.toolStripStatusLabelSTD,
-            this.toolStripStatusLabel8,
-            this.toolStripStatusLabelTN,
-            this.toolStripStatusLabel10,
-            this.toolStripStatusLabelFPN,
+            this.toolStripStatusLabelSaveStatus,
             this.toolStripStatusLabel12,
             this.toolStripStatusLabelImageExtension,
             this.toolStripStatusLabel13,
@@ -707,69 +695,15 @@
             this.statusStrip2.Location = new System.Drawing.Point(0, 378);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip2.Size = new System.Drawing.Size(565, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(720, 22);
             this.statusStrip2.TabIndex = 8;
             this.statusStrip2.Text = "statusStrip2";
             // 
             // toolStripStatusLabel6
             // 
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
-            this.toolStripStatusLabel6.Size = new System.Drawing.Size(32, 17);
-            this.toolStripStatusLabel6.Text = "Pos:";
-            // 
-            // toolStripStatusLabelPos
-            // 
-            this.toolStripStatusLabelPos.Name = "toolStripStatusLabelPos";
-            this.toolStripStatusLabelPos.Size = new System.Drawing.Size(15, 17);
-            this.toolStripStatusLabelPos.Text = "0";
-            // 
-            // toolStripStatusLabel7
-            // 
-            this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
-            this.toolStripStatusLabel7.Size = new System.Drawing.Size(44, 17);
-            this.toolStripStatusLabel7.Text = "Mean:";
-            // 
-            // toolStripStatusLabelMean
-            // 
-            this.toolStripStatusLabelMean.Name = "toolStripStatusLabelMean";
-            this.toolStripStatusLabelMean.Size = new System.Drawing.Size(15, 17);
-            this.toolStripStatusLabelMean.Text = "0";
-            // 
-            // toolStripStatusLabel9
-            // 
-            this.toolStripStatusLabel9.Name = "toolStripStatusLabel9";
-            this.toolStripStatusLabel9.Size = new System.Drawing.Size(78, 17);
-            this.toolStripStatusLabel9.Text = "Total Noise:";
-            // 
-            // toolStripStatusLabelSTD
-            // 
-            this.toolStripStatusLabelSTD.Name = "toolStripStatusLabelSTD";
-            this.toolStripStatusLabelSTD.Size = new System.Drawing.Size(15, 17);
-            this.toolStripStatusLabelSTD.Text = "0";
-            // 
-            // toolStripStatusLabel8
-            // 
-            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
-            this.toolStripStatusLabel8.Size = new System.Drawing.Size(105, 17);
-            this.toolStripStatusLabel8.Text = "Temporal Noise:";
-            // 
-            // toolStripStatusLabelTN
-            // 
-            this.toolStripStatusLabelTN.Name = "toolStripStatusLabelTN";
-            this.toolStripStatusLabelTN.Size = new System.Drawing.Size(15, 17);
-            this.toolStripStatusLabelTN.Text = "0";
-            // 
-            // toolStripStatusLabel10
-            // 
-            this.toolStripStatusLabel10.Name = "toolStripStatusLabel10";
-            this.toolStripStatusLabel10.Size = new System.Drawing.Size(31, 17);
-            this.toolStripStatusLabel10.Text = "FPN";
-            // 
-            // toolStripStatusLabelFPN
-            // 
-            this.toolStripStatusLabelFPN.Name = "toolStripStatusLabelFPN";
-            this.toolStripStatusLabelFPN.Size = new System.Drawing.Size(15, 17);
-            this.toolStripStatusLabelFPN.Text = "0";
+            this.toolStripStatusLabel6.Size = new System.Drawing.Size(73, 17);
+            this.toolStripStatusLabel6.Text = "SaveStatus:";
             // 
             // toolStripStatusLabel12
             // 
@@ -779,8 +713,9 @@
             // 
             // toolStripStatusLabelImageExtension
             // 
+            this.toolStripStatusLabelImageExtension.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
             this.toolStripStatusLabelImageExtension.Name = "toolStripStatusLabelImageExtension";
-            this.toolStripStatusLabelImageExtension.Size = new System.Drawing.Size(27, 17);
+            this.toolStripStatusLabelImageExtension.Size = new System.Drawing.Size(28, 17);
             this.toolStripStatusLabelImageExtension.Text = "jpg";
             // 
             // toolStripStatusLabel13
@@ -795,11 +730,25 @@
             this.toolStripStatusLabelpath.Size = new System.Drawing.Size(12, 17);
             this.toolStripStatusLabelpath.Text = " ";
             // 
+            // toolStripStatusLabelSaveStatus
+            // 
+            this.toolStripStatusLabelSaveStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.toolStripStatusLabelSaveStatus.Name = "toolStripStatusLabelSaveStatus";
+            this.toolStripStatusLabelSaveStatus.Size = new System.Drawing.Size(13, 17);
+            this.toolStripStatusLabelSaveStatus.Text = "-";
+            // 
+            // statusToolStripStatusLabel
+            // 
+            this.statusToolStripStatusLabel.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.statusToolStripStatusLabel.Name = "statusToolStripStatusLabel";
+            this.statusToolStripStatusLabel.Size = new System.Drawing.Size(15, 17);
+            this.statusToolStripStatusLabel.Text = "0";
+            // 
             // CameraToolForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(565, 400);
+            this.ClientSize = new System.Drawing.Size(720, 400);
             this.Controls.Add(this.statusStrip2);
             this.Controls.Add(this.pictureBoxBottomRight);
             this.Controls.Add(this.pictureBoxTopRight);
@@ -862,7 +811,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelRes;
         private System.Windows.Forms.ToolStripMenuItem noDisplayToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem softTriggerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel statusToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel statusToolStrip7;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem monoSensorToolStripMenuItem;
@@ -893,15 +842,6 @@
         private System.Windows.Forms.ToolStripMenuItem autoTriggerToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelPos;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelMean;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel9;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSTD;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelTN;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelFPN;
         private System.Windows.Forms.ToolStripMenuItem autoExposureSoftwareToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem noiseCalculationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem programFlashToolStripMenuItem;
@@ -919,6 +859,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelImageExtension;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel13;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelpath;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSaveStatus;
+        private System.Windows.Forms.ToolStripStatusLabel statusToolStripStatusLabel;
     }
 }
 

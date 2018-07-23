@@ -203,12 +203,12 @@ namespace CameraTool
                 //*************************************单帧存储***********************************************
                 if (m_SaveFrameToFile && m_CaptureOneImage) // 单帧存图和图像获取完成，则进入图像保存
                 {
-                    string SavePath = g_SavePath;
+                    string SavePath = g_SavePath + "\\single";
                     if (!Directory.Exists(SavePath))//判断是否存在
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddHHmm_ss_fff") + g_SaveSuffix;
+                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
@@ -318,25 +318,41 @@ namespace CameraTool
                         doAE();
                         m_PrevFrameCnt = capture.FrameCount;
 
-                        statusToolStripStatusLabel.Text = "Frame Count: " + capture.FrameCount.ToString() // YKB 20180423 add 帧率显示
-                                + "  Mean: " + m_ImageMean.ToString("F1")
-                                + "  exp: " + m_curExpTimeInLines.ToString()
-                                + "  gain: " + m_curGain.ToString()
-                                + "  AE doen:  " + m_AE_done.ToString();
+                        statusToolStripStatusLabel.Text = capture.FrameCount.ToString(); // YKB 20180423 add 帧率显示
+                                //+ "  Mean: " + m_ImageMean.ToString("F1")
+                                //+ "  exp: " + m_curExpTimeInLines.ToString()
+                                //+ "  gain: " + m_curGain.ToString()
+                                //+ "  AE doen:  " + m_AE_done.ToString();
                     }
                 }
                 else // YKB 20180423 非自动曝光
                 {
                     if (capture.FrameCount != m_PrevFrameCnt) // org code
                     {
-                        statusToolStripStatusLabel.Text = "Frame Count: " + capture.FrameCount.ToString();
+                        statusToolStripStatusLabel.Text = capture.FrameCount.ToString();
                     }
-                    savecounttoolStripStatusLabel.Text = iNumDiff.ToString("D6") + " ";
+                    savecounttoolStripStatusLabel.Text = iNumDiff.ToString("D6");
 
                     m_PrevFrameCnt = capture.FrameCount;
 
                     if (FrameDisconntinued)
-                        statusToolStripStatusLabel.Text += "FrmCnt disconnectinued";
+                        statusToolStripStatusLabel.Text += "-";
+                }
+
+                if (m_SaveAllImage || m_CaptureOneImage) // 图片保存状态显示
+                {
+                    if (m_SaveAllImage)
+                    {
+                        toolStripStatusLabelSaveStatus.Text = "c";
+                    }
+                    if (m_CaptureOneImage)
+                    {
+                        toolStripStatusLabelSaveStatus.Text = "s";
+                    }
+                }
+                else
+                {
+                    toolStripStatusLabelSaveStatus.Text = "-";
                 }
 
                 // update the progress
@@ -359,6 +375,7 @@ namespace CameraTool
                         triggerStartTime = DateTime.Now;
                     }
                 }
+                /*
                 if (m_NoiseCalculationEna)
                 {
                     toolStripStatusLabelMean.Text = m_RectMean.ToString("F1");
@@ -370,7 +387,8 @@ namespace CameraTool
                     toolStripStatusLabelSTD.Text = "-";
                 }
                 toolStripStatusLabelTN.Text = "-";// m_RectTN.ToString("F1");
-                //toolStripStatusLabelFPN.Text = "-";// m_RectFPN.ToString("F1");
+                toolStripStatusLabelFPN.Text = "-";// m_RectFPN.ToString("F1");
+                */
 
                 toolStripStatusLabelpath.Text = FileName;
 
@@ -1596,7 +1614,7 @@ namespace CameraTool
 
             myEncoder = System.Drawing.Imaging.Encoder.Quality; // 编码器质量参数选择
             g_EncoderParameters = new EncoderParameters(1); // 由于保存图片时函数只接受EncoderParameters参数，因此新建一个元素的参数数组
-            myEncoderParameter = new EncoderParameter(myEncoder, 90L); // 设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
+            myEncoderParameter = new EncoderParameter(myEncoder, 100L); // 设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
             g_EncoderParameters.Param[0] = myEncoderParameter;
             //*************************************保存图像时编码设置 结束***********************************************
 
@@ -1619,7 +1637,7 @@ namespace CameraTool
         }
 
         // YKB 20180601 为菜单添加快捷方式
-        protected override void OnKeyDown(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e) // 快捷键设置
         {
             //if (e.Control & e.KeyCode == Keys.F)//ctrl+f  
             if (e.KeyCode == Keys.Space) // C 采集图像 
@@ -1628,7 +1646,7 @@ namespace CameraTool
                 {
                     saveAllImageToolStripMenuItem_Click(null, null); // 连续采集，为防止误操作采用Control+键值判断
                 }
-                else
+                if (e.Shift)
                 {
                     if (!m_CaptureOneImage) // 当前未处于保存模式
                     {
@@ -1641,36 +1659,45 @@ namespace CameraTool
                 ShowGridtoolStripMenuItem_Click(null, null);
             }
 
-            if (e.KeyCode == Keys.T) // T 开启关闭自动触发
+            if (e.KeyCode == Keys.T && e.Control) // T 开启关闭自动触发
             {
-                autoTriggerToolStripMenuItem_Click(null, null);
+                if (capture != null)
+                {
+                    autoTriggerToolStripMenuItem_Click(null, null);
+                }
             }
-            if (e.KeyCode == Keys.F) // F 开启关闭下降沿触发
+            if (e.KeyCode == Keys.F && e.Control) // F 开启关闭下降沿触发
             {
-                negativeEdgeToolStripMenuItem_Click(null, null);
+                if (capture != null)
+                {
+                    negativeEdgeToolStripMenuItem_Click(null, null);
+                }
             }
-            if (e.KeyCode == Keys.H) // H 开启关闭上升沿触发
+            if (e.KeyCode == Keys.H && e.Control) // H 开启关闭上升沿触发
             {
-                positiveEdgeToolStripMenuItem_Click(null, null);
+                if (capture != null)
+                {
+                    positiveEdgeToolStripMenuItem_Click(null, null);
+                }
             }
 
-            if (e.KeyCode == Keys.D1 || e.KeyCode == Keys.NumPad1) // 1 选择bmp格式
+            if (e.KeyCode == Keys.D1 && e.Control) // 1 选择bmp格式
             {
                 BMPToolStripMenuItem_Click(null, null);
             }
-            if (e.KeyCode == Keys.D2 || e.KeyCode == Keys.NumPad2) // 2 选择jpg格式，默认选项
+            if (e.KeyCode == Keys.D2 && e.Control) // 2 选择jpg格式，默认选项
             {
                 JPGToolStripMenuItem_Click(null, null);
             }
-            if (e.KeyCode == Keys.D3 || e.KeyCode == Keys.NumPad3) // 3 选择png格式
+            if (e.KeyCode == Keys.D3 && e.Control) // 3 选择png格式
             {
                 PNGToolStripMenuItem_Click(null, null);
             }
-            if (e.KeyCode == Keys.D4 || e.KeyCode == Keys.NumPad4) // 4 选择gif格式
+            if (e.KeyCode == Keys.D4 && e.Control) // 4 选择gif格式
             {
                 GIFToolStripMenuItem_Click(null, null);
             }
-            if (e.KeyCode == Keys.D5 || e.KeyCode == Keys.NumPad5) // 5 选择tiff格式
+            if (e.KeyCode == Keys.D5 && e.Control) // 5 选择tiff格式
             {
                 TIFFToolStripMenuItem_Click(null, null);
             }
@@ -1751,8 +1778,8 @@ namespace CameraTool
 
                     System.Threading.Thread.Sleep(50);
 
-                    int CaptureLatency = capture.GetREGStatus();
-                    toolStripStatusLabelFPN.Text = "Latency = " + CaptureLatency.ToString() + " ms";
+                    int CaptureLatency = capture.GetREGStatus(); // 采集耗时
+                    //toolStripStatusLabelFPN.Text = "Latency = " + CaptureLatency.ToString() + " ms";
 
                     capture.SetRegRW(0, 0x0008, 0x0000); // tranfer Image
                     {
@@ -2417,7 +2444,7 @@ namespace CameraTool
         private bool drawingRect = false, endofRect = false;
         private void pictBDisplay_MouseMove(object sender, MouseEventArgs e)
         {
-            toolStripStatusLabelPos.Text = e.Location.X + ":" + e.Location.Y + "." + pictBDisplay.Width.ToString() + ":" + pictBDisplay.Height.ToString();
+            toolStripStatusLabelSaveStatus.Text = e.Location.X + ":" + e.Location.Y + "." + pictBDisplay.Width.ToString() + ":" + pictBDisplay.Height.ToString();
 
             if (drawingRect && !endofRect)
             {
@@ -2605,7 +2632,7 @@ namespace CameraTool
                 // EncoderParameter object in the array.
                 g_EncoderParameters = new EncoderParameters(1);
                 //设置质量 数字越大质量越好，但是到了一定程度质量就不会增加了，MSDN上没有给范围，只说是32位非负整数
-                EncoderParameter = new EncoderParameter(Encoder, 90L);
+                EncoderParameter = new EncoderParameter(Encoder, 100L);
                 g_EncoderParameters.Param[0] = EncoderParameter;
                 //*************************************保存图像时编码设置结束***********************************************
 

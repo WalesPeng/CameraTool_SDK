@@ -113,6 +113,7 @@ namespace CameraTool
         
         private Bitmap imageBmpSave;
         int iLastFrameCount = 0;  // YKB 20180425 add 记录保存图像时相机帧数
+        int iSaveCount = 0; // 记录已保存数据数
         int iNumDiff = 0; // YKB 20180425 add 记录图像保存次数
         string g_ConfigPath = ""; // YKB 20180428 配置文件路径
         string g_SavePath = ""; // YKB 20180510 图片保存路径
@@ -193,6 +194,7 @@ namespace CameraTool
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
                     //imageBmpSave.Dispose(); // 释放空间，因为在图像获取时创建了空间（如果是在点击保存时创建空间则此处不能释放空间）
 
+                    iSaveCount++; // 真实保存数据计数
                     m_SaveFrameToFile = false; // 先交给回调函数采集图像，同时该线程保存图片
                     //TimeSpan timespan = watch.Elapsed;  //获取当前实例测量得出的总时间
                     //sw.Write(timespan.Milliseconds.ToString() + "ms\r\n");
@@ -331,13 +333,14 @@ namespace CameraTool
                     {
                         statusToolStripStatusLabel.Text = capture.FrameCount.ToString();
                     }
-                    savecounttoolStripStatusLabel.Text = iNumDiff.ToString("D6");
-
                     m_PrevFrameCnt = capture.FrameCount;
 
                     if (FrameDisconntinued)
                         statusToolStripStatusLabel.Text += "-";
                 }
+
+                toolStripStatusLabelNumDiff.Text = iNumDiff.ToString("D6");
+                toolStripStatusLabelSaveCount.Text = iSaveCount.ToString();
 
                 if (m_SaveAllImage || m_CaptureOneImage) // 图片保存状态显示
                 {
@@ -889,7 +892,7 @@ namespace CameraTool
                 updateDeviceFrameRate();
 
 
-                // 开启上升沿触发模式选择
+                // 开启内部触发模式
                 capture.EnableTriggerMode(false, false);
                 m_TriggerMode = false;
 
@@ -3168,6 +3171,7 @@ namespace CameraTool
 
                 iNumDiff = 0;
                 iLastFrameCount = capture.FrameCount; // 记录保存图像时当前帧数
+                iSaveCount = 0; // 已保存帧数
                 m_SaveFrameToFile = false; // 准备图像采集
                 m_SaveAllImage = true; // 连续存储使能
 

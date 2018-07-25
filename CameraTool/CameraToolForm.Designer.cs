@@ -91,8 +91,9 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFPS = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel11 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.savecounttoolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelNumDiff = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusToolStrip7 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.pictBDisplay = new System.Windows.Forms.PictureBox();
             this.pictureBoxCenter = new System.Windows.Forms.PictureBox();
             this.pictureBoxTopLeft = new System.Windows.Forms.PictureBox();
@@ -101,12 +102,13 @@
             this.pictureBoxBottomRight = new System.Windows.Forms.PictureBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelSaveStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelImageExtension = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel13 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelpath = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelSaveStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelSaveCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -527,7 +529,7 @@
             this.toolStripStatusLabel1,
             this.toolStripStatusLabelFPS,
             this.toolStripStatusLabel11,
-            this.savecounttoolStripStatusLabel,
+            this.toolStripStatusLabelNumDiff,
             this.statusToolStrip7,
             this.statusToolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 25);
@@ -600,22 +602,29 @@
             // toolStripStatusLabel11
             // 
             this.toolStripStatusLabel11.Name = "toolStripStatusLabel11";
-            this.toolStripStatusLabel11.Size = new System.Drawing.Size(76, 17);
-            this.toolStripStatusLabel11.Text = "Save Count:";
+            this.toolStripStatusLabel11.Size = new System.Drawing.Size(63, 17);
+            this.toolStripStatusLabel11.Text = "Num Diff:";
             // 
-            // savecounttoolStripStatusLabel
+            // toolStripStatusLabelNumDiff
             // 
-            this.savecounttoolStripStatusLabel.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.savecounttoolStripStatusLabel.Name = "savecounttoolStripStatusLabel";
-            this.savecounttoolStripStatusLabel.Size = new System.Drawing.Size(19, 17);
-            this.savecounttoolStripStatusLabel.Text = "0 ";
-            this.savecounttoolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.toolStripStatusLabelNumDiff.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.toolStripStatusLabelNumDiff.Name = "toolStripStatusLabelNumDiff";
+            this.toolStripStatusLabelNumDiff.Size = new System.Drawing.Size(19, 17);
+            this.toolStripStatusLabelNumDiff.Text = "0 ";
+            this.toolStripStatusLabelNumDiff.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // statusToolStrip7
             // 
             this.statusToolStrip7.Name = "statusToolStrip7";
             this.statusToolStrip7.Size = new System.Drawing.Size(46, 17);
             this.statusToolStrip7.Text = "Status:";
+            // 
+            // statusToolStripStatusLabel
+            // 
+            this.statusToolStripStatusLabel.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.statusToolStripStatusLabel.Name = "statusToolStripStatusLabel";
+            this.statusToolStripStatusLabel.Size = new System.Drawing.Size(15, 17);
+            this.statusToolStripStatusLabel.Text = "0";
             // 
             // pictBDisplay
             // 
@@ -690,6 +699,8 @@
             this.toolStripStatusLabelSaveStatus,
             this.toolStripStatusLabel12,
             this.toolStripStatusLabelImageExtension,
+            this.toolStripStatusLabel7,
+            this.toolStripStatusLabelSaveCount,
             this.toolStripStatusLabel13,
             this.toolStripStatusLabelpath});
             this.statusStrip2.Location = new System.Drawing.Point(0, 378);
@@ -705,11 +716,18 @@
             this.toolStripStatusLabel6.Size = new System.Drawing.Size(73, 17);
             this.toolStripStatusLabel6.Text = "SaveStatus:";
             // 
+            // toolStripStatusLabelSaveStatus
+            // 
+            this.toolStripStatusLabelSaveStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.toolStripStatusLabelSaveStatus.Name = "toolStripStatusLabelSaveStatus";
+            this.toolStripStatusLabelSaveStatus.Size = new System.Drawing.Size(13, 17);
+            this.toolStripStatusLabelSaveStatus.Text = "-";
+            // 
             // toolStripStatusLabel12
             // 
             this.toolStripStatusLabel12.Name = "toolStripStatusLabel12";
-            this.toolStripStatusLabel12.Size = new System.Drawing.Size(81, 17);
-            this.toolStripStatusLabel12.Text = " |  extension:";
+            this.toolStripStatusLabel12.Size = new System.Drawing.Size(66, 17);
+            this.toolStripStatusLabel12.Text = "extension:";
             // 
             // toolStripStatusLabelImageExtension
             // 
@@ -730,19 +748,18 @@
             this.toolStripStatusLabelpath.Size = new System.Drawing.Size(12, 17);
             this.toolStripStatusLabelpath.Text = " ";
             // 
-            // toolStripStatusLabelSaveStatus
+            // toolStripStatusLabel7
             // 
-            this.toolStripStatusLabelSaveStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.toolStripStatusLabelSaveStatus.Name = "toolStripStatusLabelSaveStatus";
-            this.toolStripStatusLabelSaveStatus.Size = new System.Drawing.Size(13, 17);
-            this.toolStripStatusLabelSaveStatus.Text = "-";
+            this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
+            this.toolStripStatusLabel7.Size = new System.Drawing.Size(35, 17);
+            this.toolStripStatusLabel7.Text = "sum:";
             // 
-            // statusToolStripStatusLabel
+            // toolStripStatusLabelSaveCount
             // 
-            this.statusToolStripStatusLabel.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.statusToolStripStatusLabel.Name = "statusToolStripStatusLabel";
-            this.statusToolStripStatusLabel.Size = new System.Drawing.Size(15, 17);
-            this.statusToolStripStatusLabel.Text = "0";
+            this.toolStripStatusLabelSaveCount.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.toolStripStatusLabelSaveCount.Name = "toolStripStatusLabelSaveCount";
+            this.toolStripStatusLabelSaveCount.Size = new System.Drawing.Size(15, 17);
+            this.toolStripStatusLabelSaveCount.Text = "0";
             // 
             // CameraToolForm
             // 
@@ -852,7 +869,7 @@
         private System.Windows.Forms.ToolStripMenuItem BMPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem JPGToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem PNGToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel savecounttoolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelNumDiff;
         private System.Windows.Forms.ToolStripMenuItem GIFToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem TIFFToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;
@@ -861,6 +878,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelpath;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSaveStatus;
         private System.Windows.Forms.ToolStripStatusLabel statusToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSaveCount;
     }
 }
 

@@ -593,6 +593,47 @@ __declspec(dllexport) int convert_yuv_to_rgb_buffer(BYTE *yuv, BYTE *rgb, int wi
 
 }
 
+
+// YKB 20180726 ∆¡±ŒµÙmarken–≈œ¢
+__declspec(dllexport) int convert_yuv_to_rgb_buffer_YKB(BYTE *yuv, BYTE *rgb, int width, int height)
+{
+	int in, out = 0;
+	int pixel_16;
+	BYTE pixel_24[3];
+	int pixel32;
+
+	int y0, u, y1, v;
+
+	for (in = 0; in < width * height * 2; in += 4)
+	{
+		pixel_16 =
+			yuv[in + 3] << 24 |
+			yuv[in + 2] << 16 |
+			yuv[in + 1] << 8 |
+			yuv[in + 0];
+		y0 = (pixel_16 & 0x000000ff);
+		u = (pixel_16 & 0x0000ff00) >> 8;
+		y1 = (pixel_16 & 0x00ff0000) >> 16;
+		v = (pixel_16 & 0xff000000) >> 24;
+		pixel32 = convert_yuv_to_rgb_pixel(y0, u, v);
+		pixel_24[0] = (pixel32 & 0x000000ff);
+		pixel_24[1] = (pixel32 & 0x0000ff00) >> 8;
+		pixel_24[2] = (pixel32 & 0x00ff0000) >> 16;
+		rgb[out++] = pixel_24[0];
+		rgb[out++] = pixel_24[1];
+		rgb[out++] = pixel_24[2];
+		pixel32 = convert_yuv_to_rgb_pixel(y1, u, v);
+		pixel_24[0] = (pixel32 & 0x000000ff);
+		pixel_24[1] = (pixel32 & 0x0000ff00) >> 8;
+		pixel_24[2] = (pixel32 & 0x00ff0000) >> 16;
+		rgb[out++] = pixel_24[0];
+		rgb[out++] = pixel_24[1];
+		rgb[out++] = pixel_24[2];
+	}
+	return 0;
+
+}
+
 // remove all Cb & Cr, only leave y in the data
 __declspec(dllexport) int yuv422_to_y(BYTE* in_bytes, BYTE* out_bytes, int width, int height)
 {

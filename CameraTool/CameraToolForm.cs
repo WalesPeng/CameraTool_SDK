@@ -55,6 +55,8 @@ namespace CameraTool
         private bool m_AutoExposure = false;
         private bool m_MonoSensor = false;
         private bool m_AutoTrigger = false;
+        private bool g_ena = false; // YKB 20180727 相机外部触发使能
+        private bool g_enb = false; // YKB 20180727 相机外部触发选择，true 上升沿触发；false 下降沿触发
         private int m_AutoTriggerCnt = 0, m_AutoTriggerPrevCnt = 0;
         private PIXEL_ORDER m_pixelOrder;
         private bool m_NoiseCalculationEna = false; // YKB 20180421 modify 初始化不计算噪声
@@ -115,6 +117,7 @@ namespace CameraTool
         int iLastFrameCount = 0;  // YKB 20180425 add 记录保存图像时相机帧数
         int iSaveCount = 0; // 记录已保存数据数
         int iNumDiff = 0; // YKB 20180425 add 记录图像保存次数
+        int iDeviceLostCount = 0; // 相机掉线计数，掉线次数大于阈值则重新连接
         string g_ConfigPath = ""; // YKB 20180428 配置文件路径
         string g_SavePath = ""; // YKB 20180510 图片保存路径
         string g_SaveSuffix = ""; // YKB 20180510 文件后缀
@@ -299,7 +302,43 @@ namespace CameraTool
                     preFrameCount = capture.FrameCount;
 
                     if (fps >= 0)
+                    {
                         toolStripStatusLabelFPS.Text = ((double)fps * 1000 / (ts.Seconds * 1000 + ts.Milliseconds)).ToString("F1") + " fps";
+                    }
+
+                    //*************************************掉线自动重连 开始***********************************************
+                    CameraUUID = "";
+                    HwRev = 0;
+                    FwRev = 0;
+                    try
+                    {
+                        capture.ReadCamUUIDnHWFWRev(out CameraUUID, out HwRev, out FwRev);
+                    }
+                    catch (System.Exception ex)
+                    {
+                    	
+                    }
+                    if ("" == CameraUUID || 0 == HwRev || 0 == FwRev)
+                    {
+                        iDeviceLostCount++;
+                        if (iDeviceLostCount > 10000)
+                        {
+                            iDeviceLostCount = 2;
+                        }
+                        if (iDeviceLostCount >= 2)
+                        {
+                            timer.Stop();
+                            ReopenCameraByIndex(m_CameraIndex, m_ResolutionIndex);
+                            timer.Interval = (10);
+                            timer.Enabled = true;                       // Enable the timer
+                            timer.Start();                              // Start the timer
+                        }
+                    }
+                    else
+                    {
+                        iDeviceLostCount = 0;
+                    }
+                    //*************************************掉线自动重连 结束***********************************************
 
                     startTime = DateTime.Now;
                 }
@@ -487,7 +526,7 @@ namespace CameraTool
         {
             thread.Abort(); // YKB 20180423 add 退出线程
             thread.Join();
-
+            imageBmpSave.Dispose();
             Application.Exit();
         }
 
@@ -744,7 +783,7 @@ namespace CameraTool
                 }
                 else // YUV sensor
                 {
-                    capture.SetParam(width, height, true, pictBDisplay.Handle); // 交给渲染器做图像显示处理，不需要认为去刷新
+                    capture.SetParam(width, height, true, pictBDisplay.Handle); // 交给渲染器做图像显示处理，不需要人为去刷新
 
                     item = (ToolStripMenuItem)triggerModeToolStripMenuItem;
                     item.Checked = false;
@@ -829,9 +868,10 @@ namespace CameraTool
                 pictureBoxBottomLeft.Parent = pictBDisplay;
                 pictureBoxBottomRight.Parent = pictBDisplay;
 
-                onPreviewWindowResize(this, null);
-
                 setupMenuAndInit(width, height); // YKB 20180420 设置菜单
+
+                onPreviewWindowResize(this, null); // YKB 20180726 修复原版中打开相机图像位置不对的bug
+
 
                 // the first 4 bits represents the sensor mode, 0x1 : RAW 8, 0x2: RAW 10, 0x3: RAW 12, 0x4: YUY2, 0x5: RAW8_DUAL
                 if ((HwRev & 0xf000) == 0x1000)
@@ -905,6 +945,10 @@ namespace CameraTool
                 saveAllImageToolStripMenuItem.Enabled = true;
 
                 m_AutoTrigger = false;
+                if (null != imageBmpSave)
+                {
+                    imageBmpSave.Dispose(); // 可能需要多次打开设备，因此需要在创建bitmap图片时，先释放空间
+                }
                 imageBmpSave = new Bitmap(capture.Width, capture.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
                 this.KeyPreview = true;//为了使OnKeyDown事件有效
@@ -914,6 +958,155 @@ namespace CameraTool
             {
             }
             
+            OpenCameraMutex.ReleaseMutex();
+        }
+
+        private void ReopenCameraByIndex(int index, int modeIndex) // YKB 20180420 通过索引打开相机
+        {
+            int width, height;
+
+            OpenCameraMutex.WaitOne();
+
+            try
+            {
+                cameraPropertyToolStripMenuItem.Enabled = false;
+                optionsToolStripMenuItem.Enabled = false;
+                resolutionToolStripMenuItem.Enabled = false;
+                framerateToolStripMenuItem.Enabled = false;
+
+                int count = capture.FrameCount;
+                DirectShowLib.DsDevice cameraDevice = capture.cameraList[index];
+                int ResolutionIndex = m_ResolutionIndex;
+                int FrameRateIndex = m_FrameRateIndex;
+                CloseCamera();
+
+                capture = new LPCamera();
+                capture.FrameCount += count;
+                capture.cameraList[index] = cameraDevice;
+                m_ResolutionIndex = ResolutionIndex;
+                m_FrameRateIndex = FrameRateIndex;
+
+                //capture.Open(cameraDevice, ResolutionIndex, FrameRateIndex);
+                capture.Open(capture.cameraList[index], m_ResolutionIndex, m_FrameRateIndex);
+
+                CameraUUID = "";
+                FuseID = "";
+                HwRev = 0;
+                FwRev = 0;
+                MarkEn = false;
+
+                try // YKB 20180420 相机信息获取
+                {
+                    System.Threading.Thread.Sleep(500);
+                    try
+                    {
+                        capture.ReadCamUUIDnHWFWRev(out CameraUUID, out HwRev, out FwRev);
+                    }
+                    catch
+                    {
+                        capture.ReadCamUUIDnHWFWRev(out CameraUUID, out HwRev, out FwRev, out FuseID);
+                        MarkEn = true;
+                    }
+                    capture.ReadExtensionINFO(out ROIX_MAX, out ROIX_MIN, out ROIY_MAX, out ROIY_MIN);
+                    frmRegRW_MODESET.Update_TrackBarMinMax(ROIX_MAX, ROIX_MIN, ROIY_MAX, ROIY_MIN);
+
+                    width = capture.ResList[modeIndex, 0];
+                    height = capture.ResList[modeIndex, 1];
+
+                    capture.m_capture.ReceivedOneFrame += new FrameReceivedEventHandler(onReceivedOneFrame);
+                    //Position video window in client rect of owner window
+                    pictBDisplay.Resize += new EventHandler(onPreviewWindowResize);
+
+                    pictureBoxCenter.Parent = pictBDisplay;
+                    pictureBoxTopLeft.Parent = pictBDisplay;
+                    pictureBoxTopRight.Parent = pictBDisplay;
+                    pictureBoxBottomLeft.Parent = pictBDisplay;
+                    pictureBoxBottomRight.Parent = pictBDisplay;
+
+                    setupMenuAndInit(width, height); // YKB 20180726 设置菜单状态，并启动渲染器
+
+                    onPreviewWindowResize(this, null); // YKB 20180727 窗口图像刷新，在setupMenuAndInit(width, height)之后执行
+
+                    // the first 4 bits represents the sensor mode, 0x1 : RAW 8, 0x2: RAW 10, 0x3: RAW 12, 0x4: YUY2, 0x5: RAW8_DUAL
+                    if ((HwRev & 0xf000) == 0x1000)
+                    {
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8;
+                        width = width * 2;
+                    }
+                    else if ((HwRev & 0xf000) == 0x2000)
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW10;
+                    else if ((HwRev & 0xf000) == 0x3000)
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW12;
+                    else if ((HwRev & 0xf000) == 0x4000)
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV;
+                    else if ((HwRev & 0xf000) == 0x5000)
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL;
+                    else if (capture.cameraModel == LPCamera.CameraModel.ZED)
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV_DUAL;
+
+                    width = width * (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL ? 2 : 1);
+
+                    // ETRON3D camera is YUY2 data format, in order to handle it and display
+                    // receive it as raw10 data format, added depth image display area in the right form
+                    if (capture.cameraModel == LPCamera.CameraModel.ETRON3D)
+                    {
+                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW10;
+                        width += 640;
+                    }
+
+                    this.StartPosition = FormStartPosition.Manual; // YKB 20180428 窗体的位置由Location属性决定
+                    this.Location = (Point)new Size(0, 0);
+                    this.Width = width / 2 + 18; // YKB 20180428 窗口默认以图像的一半显示
+                    this.Height = height / 2 + 50 + pictBDisplay.Top + statusStrip2.Height;
+
+                    capture.EnableTriggerMode(g_ena, g_enb);
+
+                    capture.Run();
+
+                    m_PrevFrameCnt = capture.FrameCount;
+
+                    cameraPropertyToolStripMenuItem.Enabled = true;
+                    optionsToolStripMenuItem.Enabled = true;
+                    resolutionToolStripMenuItem.Enabled = true;
+                    framerateToolStripMenuItem.Enabled = true;
+
+                    // only ar0130_ap0100 camera supports flash update
+                    if (capture.cameraModel == LPCamera.CameraModel.AR0130_AP0100)
+                        programFlashToolStripMenuItem.Enabled = true;
+                    else
+                        programFlashToolStripMenuItem.Enabled = false;
+
+                    cameraList = CameraType.LEOPARD_CAMERA;
+                }
+                catch
+                {
+                    CameraUUID = "";
+                    HwRev = 0;
+                    FwRev = 0;
+                    cameraList = CameraType.NO_CAMERA;
+
+                    AddCamerasToMenu();
+                    updateDeviceInfo();
+                    updateDeviceResolution();
+                    updateDeviceFrameRate();
+
+                    cameraPropertyToolStripMenuItem.Enabled = false;
+                    optionsToolStripMenuItem.Enabled = false;
+                    resolutionToolStripMenuItem.Enabled = false;
+                    triggerModeToolStripMenuItem.Enabled = false;
+                    autoTriggerToolStripMenuItem.Enabled = false;
+                    framerateToolStripMenuItem.Enabled = false;
+
+                    m_AutoTrigger = false;
+
+                    this.Width = 640;
+                    this.Height = 480;
+                }
+            }
+            catch
+            {
+            }
+
             OpenCameraMutex.ReleaseMutex();
         }
 
@@ -1123,24 +1316,20 @@ namespace CameraTool
 
         private void CopyFrame_YKB(IntPtr pBuffer, int width, int height, int bpp) // YKB 20180509 复制图像，YUV转RGB
         {
+
             if (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV
                 || m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV_DUAL)
-                imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP_YKB(pBuffer, width, height, imageBmpSave, MarkEn, (pictureBoxCenter.Top * height / pictBDisplay.Height) * width + pictureBoxCenter.Left * width / pictBDisplay.Width,
-                                                                        (pictureBoxTopLeft.Top * height / pictBDisplay.Height) * width + pictureBoxTopLeft.Left * width / pictBDisplay.Width,
-                                                                        (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
-                                                                        (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
-                                                                        (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
-            //imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP(pBuffer, width, height, MarkEn, (pictureBoxCenter.Top * height / pictBDisplay.Height) * width + pictureBoxCenter.Left * width / pictBDisplay.Width,
-            //                                                            (pictureBoxTopLeft.Top * height / pictBDisplay.Height) * width + pictureBoxTopLeft.Left * width / pictBDisplay.Width,
-            //                                                            (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
-            //                                                            (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
-            //                                                            (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
+                //imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP_YKB(pBuffer, width, height, imageBmpSave, MarkEn, (pictureBoxCenter.Top * height / pictBDisplay.Height) * width + pictureBoxCenter.Left * width / pictBDisplay.Width,
+                //                                                        (pictureBoxTopLeft.Top * height / pictBDisplay.Height) * width + pictureBoxTopLeft.Left * width / pictBDisplay.Width,
+                //                                                        (pictureBoxBottomLeft.Top * height / pictBDisplay.Height) * width + pictureBoxBottomLeft.Left * width / pictBDisplay.Width,
+                //                                                        (pictureBoxTopRight.Top * height / pictBDisplay.Height) * width + pictureBoxTopRight.Left * width / pictBDisplay.Width,
+                //                                                        (pictureBoxBottomRight.Top * height / pictBDisplay.Height) * width + pictureBoxBottomRight.Left * width / pictBDisplay.Width);
+                imageBmpSave = LeopardCamera.Tools.ConvrtYUV422BMP_YKB(pBuffer, width, height, imageBmpSave); // YKB 20180726 屏蔽marken等信息（是在无法打开相机情况下设置背景）
             else
             {
-                //imageBmpSave = LeopardCamera.Tools.ConvertBayer2BMP(pBuffer, width, height, bpp, (int)m_pixelOrder, 1.6, m_MonoSensor,
-                //                                                    (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL));
                 imageBmpSave = LeopardCamera.Tools.ConvertBayer2BMP_YKB(pBuffer, width, height, imageBmpSave, bpp, (int)m_pixelOrder, 1.6, m_MonoSensor,
                                                                         (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL));
+
             }
         }
 
@@ -1661,14 +1850,6 @@ namespace CameraTool
             {
                 ShowGridtoolStripMenuItem_Click(null, null);
             }
-
-            if (e.KeyCode == Keys.T && e.Control) // T 开启关闭自动触发
-            {
-                if (capture != null)
-                {
-                    autoTriggerToolStripMenuItem_Click(null, null);
-                }
-            }
             if (e.KeyCode == Keys.F && e.Control) // F 开启关闭下降沿触发
             {
                 if (capture != null)
@@ -1931,12 +2112,7 @@ namespace CameraTool
             {
                 if (m_TriggerMode)
                 {
-                    // set exposure & gain before trigger
-                    //capture.ExposureExt = 100;
-                    //capture.Gain = 1;
-
                     capture.SoftTrigger();
-                    m_CaptureOneImage = true;
                 }
 
             }
@@ -2274,86 +2450,94 @@ namespace CameraTool
 
         private void positiveEdgeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            ToolStripMenuItem item1 = (ToolStripMenuItem)negativeEdgeToolStripMenuItem;
+            ToolStripMenuItem item = (ToolStripMenuItem)positiveEdgeToolStripMenuItem; // 上升沿触发
+            ToolStripMenuItem item1 = (ToolStripMenuItem)negativeEdgeToolStripMenuItem; // 下降沿触发
+            ToolStripMenuItem item2 = (ToolStripMenuItem)autoTriggerToolStripMenuItem; // 自动触发（非内部触发）
+            ToolStripMenuItem item3 = (ToolStripMenuItem)softTriggerToolStripMenuItem; // 软件触发
 
             if (capture != null)
             {
-                if (m_TriggerMode)
+                if (m_TriggerMode && !item1.Checked) // 当前处于触发模式（上升沿或者下降沿），当不是下降沿触发则说明处于上升沿触发，关闭触发
                 {
-                    if (!item1.Checked)
-                    {
-                        capture.EnableTriggerMode(false, false);
-                        m_TriggerMode = false;
-                        ToolStripMenuItem item = (ToolStripMenuItem)positiveEdgeToolStripMenuItem;
-                        item.Checked = false;
+                    g_ena = false;
 
-                        item = (ToolStripMenuItem)autoTriggerToolStripMenuItem;
-                        item.Checked = false;
+                    capture.EnableTriggerMode(g_ena, g_enb); // 关闭上升沿触发
 
-                        softTriggerToolStripMenuItem.Enabled = false;
-                        captureImageToolStripMenuItem.Enabled = true;
-                        autoTriggerToolStripMenuItem.Enabled = false;
-                        //saveAllImageToolStripMenuItem.Enabled = true; // YKB 20180421 add 打开上升沿触发时使能保存按钮，其实此时不应该处理
-                        m_AutoTrigger = false;
-                    }
+                    m_TriggerMode = g_ena;
+                    m_AutoTrigger = g_ena;
+
+                    item.Checked = g_ena; // 上升沿触发状态清除
+                    item1.Checked = g_ena; // 下降沿触发状态清除
+                    item2.Checked = g_ena; // 自动触发状态清除
+                    item3.Checked = g_ena; // 软件触发状态清除
+
+                    softTriggerToolStripMenuItem.Enabled = g_ena;
+                    autoTriggerToolStripMenuItem.Enabled = g_ena;
                 }
                 else
                 {
-                    capture.EnableTriggerMode(true,true);//positive edge
-                    m_TriggerMode = true;
+                    g_ena = true;
+                    g_enb = true;
 
-                    ToolStripMenuItem item = (ToolStripMenuItem)positiveEdgeToolStripMenuItem;
-                    item.Checked = true;
-                    item1.Checked = false;
+                    capture.EnableTriggerMode(g_ena,g_enb);// 上升沿触发
 
-                    softTriggerToolStripMenuItem.Enabled = true;
-                    captureImageToolStripMenuItem.Enabled = false;
-                    autoTriggerToolStripMenuItem.Enabled = true;
-                    //saveAllImageToolStripMenuItem.Enabled = false; // YKB 20180421 add 关闭上升沿触发时禁止保存按钮，其实此时不应该处理
+                    m_TriggerMode = g_ena;
+                    m_AutoTrigger = !g_ena;
+
+                    item.Checked = g_enb; // 上升沿触发状态勾选
+                    item1.Checked = !g_enb; // 下降沿触发状态清除
+                    item2.Checked = !g_ena; // 自动触发状态清除
+                    item3.Checked = !g_ena; // 软件触发状态清除
+
+                    softTriggerToolStripMenuItem.Enabled = g_ena;
+                    autoTriggerToolStripMenuItem.Enabled = g_ena;
                 }
             }
         }
 
         private void negativeEdgeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem item1 = (ToolStripMenuItem)positiveEdgeToolStripMenuItem;
+            ToolStripMenuItem item = (ToolStripMenuItem)positiveEdgeToolStripMenuItem; // 上升沿触发
+            ToolStripMenuItem item1 = (ToolStripMenuItem)negativeEdgeToolStripMenuItem; // 下降沿触发
+            ToolStripMenuItem item2 = (ToolStripMenuItem)autoTriggerToolStripMenuItem; // 自动触发（非内部触发）
+            ToolStripMenuItem item3 = (ToolStripMenuItem)softTriggerToolStripMenuItem; // 软件触发
 
             if (capture != null)
             {
-                if (m_TriggerMode)
+                if (m_TriggerMode && !item.Checked) // 当前处于触发模式（上升沿或者下降沿），当不是上升沿触发则说明处于下降沿触发，关闭触发
                 {
-                    if(!item1.Checked)
-                    {
-                    capture.EnableTriggerMode(false,false);
-                    m_TriggerMode = false;
-                    ToolStripMenuItem item = (ToolStripMenuItem)negativeEdgeToolStripMenuItem;
-                    item.Checked = false;
+                    g_ena = false;
 
-                    item = (ToolStripMenuItem)autoTriggerToolStripMenuItem;
-                    item.Checked = false;
+                    capture.EnableTriggerMode(g_ena, g_enb); // 关闭下降沿触发
 
-                    softTriggerToolStripMenuItem.Enabled = false;
-                    captureImageToolStripMenuItem.Enabled = true;
-                    autoTriggerToolStripMenuItem.Enabled = false;
-                    //saveAllImageToolStripMenuItem.Enabled = true; // YKB 20180421 add 打开下降沿触发时使能保存按钮，其实此时不应该处理
-                        m_AutoTrigger = false;
-                    }
+                    m_TriggerMode = g_ena;
+                    m_AutoTrigger = g_ena;
+
+                    item.Checked = g_ena; // 上升沿触发状态清除
+                    item1.Checked = g_ena; // 下降沿触发状态清除
+                    item2.Checked = g_ena; // 自动触发状态清除
+                    item3.Checked = g_ena; // 软件触发状态清除
+
+                    softTriggerToolStripMenuItem.Enabled = g_ena;
+                    autoTriggerToolStripMenuItem.Enabled = g_ena;
                 }
                 else
                 {
-                    capture.EnableTriggerMode(true,false);//negative edge
-                    m_TriggerMode = true;
+                    g_ena = true;
+                    g_enb = false;
 
-                    ToolStripMenuItem item = (ToolStripMenuItem)negativeEdgeToolStripMenuItem;
-                   
-                    item.Checked = true;
-                    item1.Checked = false;
+                    capture.EnableTriggerMode(g_ena, g_enb);// 下降沿触发
 
-                    softTriggerToolStripMenuItem.Enabled = true;
-                    captureImageToolStripMenuItem.Enabled = false;
-                    autoTriggerToolStripMenuItem.Enabled = true;
-                    //saveAllImageToolStripMenuItem.Enabled = false; // YKB 20180421 add 关闭下降沿触发时禁止保存按钮，其实此时不应该处理
+                    m_TriggerMode = g_ena;
+                    m_AutoTrigger = !g_ena;
+
+                    item.Checked = g_enb; // 上升沿触发状态清除
+                    item1.Checked = !g_enb; // 下降沿触发状态勾选
+                    item2.Checked = !g_ena; // 自动触发状态清除
+                    item3.Checked = !g_ena; // 软件触发状态清除
+
+                    softTriggerToolStripMenuItem.Enabled = g_ena;
+                    autoTriggerToolStripMenuItem.Enabled = g_ena;
                 }
             }
         }
@@ -2557,6 +2741,10 @@ namespace CameraTool
         {
             thread.Abort(); // YKB 20180423 add 退出线程
             thread.Join();
+            if (null != imageBmpSave)
+            {
+                imageBmpSave.Dispose();
+            }
             if (m_selectedPlugin != null)
             {
                 m_selectedPlugin.Close();
@@ -3178,12 +3366,12 @@ namespace CameraTool
                 //MessageBox.Show("开始保存图像..."); // YKB 20180421 modify 修改每帧图像保存时菜单状态
                 saveAllImageToolStripMenuItem.Text = "SaveAllImage ... ... ";
                 captureImageToolStripMenuItem.Enabled = false;
-                Delayms(500);
+                //Delayms(500);
             }
             else
             {
                 m_SaveAllImage = false;
-                Delayms(500);
+                //Delayms(500);
                 //if (imageBmpSave != null)
                 //{
                 //    imageBmpSave.Dispose();

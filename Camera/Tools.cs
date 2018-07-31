@@ -208,6 +208,23 @@ namespace LeopardCamera
             return bmp;
         }
 
+        // YKB 20180726 屏蔽marken等信息
+        public static Bitmap ConvrtYUV422BMP_YKB(IntPtr ptr, int iInWidth, int iHeight, Bitmap bmp)
+        {
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+                                        ImageLockMode.WriteOnly, bmp.PixelFormat);
+            IntPtr rgb = bmpData.Scan0;
+
+            unsafe
+            {
+                convert_yuv_to_rgb_buffer_YKB(ptr, rgb, iInWidth, iHeight);
+            }
+
+            bmp.UnlockBits(bmpData);
+
+            return bmp;
+        }
+
         public static void SaveRAWfile(IntPtr ptr, int iSize, String fileName)
         {
             byte[] arrBytes = new byte[iSize];
@@ -615,6 +632,10 @@ namespace LeopardCamera
         [DllImport("CAppLib.dll", CallingConvention = CallingConvention.Cdecl)]
 
         private static extern int convert_yuv_to_rgb_buffer(IntPtr yuv, IntPtr rgb, int width, int height, bool mark_en, int Center_picturebox_offset, int left_top, int left_bottom, int right_top, int right_bottom);
+
+        [DllImport("CAppLib.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int convert_yuv_to_rgb_buffer_YKB(IntPtr yuv, IntPtr rgb, int width, int height);
+
 
         [DllImport("CAppLib.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void reframeTo720p(IntPtr out_buf, IntPtr in_buf, int iWidth, int iHeight, int dataWidth);

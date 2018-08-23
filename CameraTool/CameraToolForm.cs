@@ -117,7 +117,7 @@ namespace CameraTool
         int iLastFrameCount = 0;  // YKB 20180425 add 记录保存图像时相机帧数
         int iSaveCount = 0; // 记录已保存数据数
         int iNumDiff = 0; // YKB 20180425 add 记录图像保存次数
-        int iDeviceLostCount = 0; // 相机掉线计数，掉线次数大于阈值则重新连接
+        string g_SubPath = ""; // YKB 20180823 图像存储根目录
         string g_ConfigPath = ""; // YKB 20180428 配置文件路径
         string g_SavePath = ""; // YKB 20180510 图片保存路径
         string g_SaveSuffix = ""; // YKB 20180510 文件后缀
@@ -172,7 +172,6 @@ namespace CameraTool
         {
             //FileStream fs = new FileStream("time.txt", FileMode.Create);
             //StreamWriter sw = new StreamWriter(fs);
-            string SubPath = DateTime.Now.ToString("yyyyMMddHHmmss"); // YKB 20180507 连续存图时的子文件夹前缀
             while (true)
             {
                 Thread.Sleep(1);
@@ -186,7 +185,7 @@ namespace CameraTool
                 {
                     //System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                     //watch.Start();  //开始监视代码运行时间
-                    string SavePath = g_SavePath + "\\" + SubPath + "_" + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
+                    string SavePath = g_SavePath + "\\continue" + "\\" + g_SubPath + "_" + (iNumDiff / 3000).ToString("D3") + "\\"; // YKB 20180504 由于保存图片数据量太大时对于读写性能有影响，因此一定数据量文件之后切换路径
                     if (!Directory.Exists(SavePath))//判断是否存在
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
@@ -305,41 +304,6 @@ namespace CameraTool
                     {
                         toolStripStatusLabelFPS.Text = ((double)fps * 1000 / (ts.Seconds * 1000 + ts.Milliseconds)).ToString("F1") + " fps";
                     }
-
-                    //*************************************掉线自动重连 开始***********************************************
-                    CameraUUID = "";
-                    HwRev = 0;
-                    FwRev = 0;
-                    try
-                    {
-                        capture.ReadCamUUIDnHWFWRev(out CameraUUID, out HwRev, out FwRev);
-                    }
-                    catch (System.Exception ex)
-                    {
-                    	
-                    }
-                    if ("" == CameraUUID || 0 == HwRev || 0 == FwRev)
-                    {
-                        iDeviceLostCount++;
-                        if (iDeviceLostCount > 10000)
-                        {
-                            iDeviceLostCount = 2;
-                        }
-                        if (iDeviceLostCount >= 2)
-                        {
-                            timer.Stop();
-                            ReopenCameraByIndex(m_CameraIndex, m_ResolutionIndex);
-                            timer.Interval = (10);
-                            timer.Enabled = true;                       // Enable the timer
-                            timer.Start();                              // Start the timer
-                        }
-                    }
-                    else
-                    {
-                        iDeviceLostCount = 0;
-                    }
-                    //*************************************掉线自动重连 结束***********************************************
-
                     startTime = DateTime.Now;
                 }
 
@@ -378,7 +342,7 @@ namespace CameraTool
                         statusToolStripStatusLabel.Text += "-";
                 }
 
-                toolStripStatusLabelNumDiff.Text = iNumDiff.ToString("D6");
+                toolStripStatusLabelNumDiff.Text = iNumDiff.ToString();
                 toolStripStatusLabelSaveCount.Text = iSaveCount.ToString();
 
                 if (m_SaveAllImage || m_CaptureOneImage) // 图片保存状态显示
@@ -961,155 +925,6 @@ namespace CameraTool
             OpenCameraMutex.ReleaseMutex();
         }
 
-        private void ReopenCameraByIndex(int index, int modeIndex) // YKB 20180420 通过索引打开相机
-        {
-            int width, height;
-
-            OpenCameraMutex.WaitOne();
-
-            try
-            {
-                cameraPropertyToolStripMenuItem.Enabled = false;
-                optionsToolStripMenuItem.Enabled = false;
-                resolutionToolStripMenuItem.Enabled = false;
-                framerateToolStripMenuItem.Enabled = false;
-
-                int count = capture.FrameCount;
-                DirectShowLib.DsDevice cameraDevice = capture.cameraList[index];
-                int ResolutionIndex = m_ResolutionIndex;
-                int FrameRateIndex = m_FrameRateIndex;
-                CloseCamera();
-
-                capture = new LPCamera();
-                capture.FrameCount += count;
-                capture.cameraList[index] = cameraDevice;
-                m_ResolutionIndex = ResolutionIndex;
-                m_FrameRateIndex = FrameRateIndex;
-
-                //capture.Open(cameraDevice, ResolutionIndex, FrameRateIndex);
-                capture.Open(capture.cameraList[index], m_ResolutionIndex, m_FrameRateIndex);
-
-                CameraUUID = "";
-                FuseID = "";
-                HwRev = 0;
-                FwRev = 0;
-                MarkEn = false;
-
-                try // YKB 20180420 相机信息获取
-                {
-                    System.Threading.Thread.Sleep(500);
-                    try
-                    {
-                        capture.ReadCamUUIDnHWFWRev(out CameraUUID, out HwRev, out FwRev);
-                    }
-                    catch
-                    {
-                        capture.ReadCamUUIDnHWFWRev(out CameraUUID, out HwRev, out FwRev, out FuseID);
-                        MarkEn = true;
-                    }
-                    capture.ReadExtensionINFO(out ROIX_MAX, out ROIX_MIN, out ROIY_MAX, out ROIY_MIN);
-                    frmRegRW_MODESET.Update_TrackBarMinMax(ROIX_MAX, ROIX_MIN, ROIY_MAX, ROIY_MIN);
-
-                    width = capture.ResList[modeIndex, 0];
-                    height = capture.ResList[modeIndex, 1];
-
-                    capture.m_capture.ReceivedOneFrame += new FrameReceivedEventHandler(onReceivedOneFrame);
-                    //Position video window in client rect of owner window
-                    pictBDisplay.Resize += new EventHandler(onPreviewWindowResize);
-
-                    pictureBoxCenter.Parent = pictBDisplay;
-                    pictureBoxTopLeft.Parent = pictBDisplay;
-                    pictureBoxTopRight.Parent = pictBDisplay;
-                    pictureBoxBottomLeft.Parent = pictBDisplay;
-                    pictureBoxBottomRight.Parent = pictBDisplay;
-
-                    setupMenuAndInit(width, height); // YKB 20180726 设置菜单状态，并启动渲染器
-
-                    onPreviewWindowResize(this, null); // YKB 20180727 窗口图像刷新，在setupMenuAndInit(width, height)之后执行
-
-                    // the first 4 bits represents the sensor mode, 0x1 : RAW 8, 0x2: RAW 10, 0x3: RAW 12, 0x4: YUY2, 0x5: RAW8_DUAL
-                    if ((HwRev & 0xf000) == 0x1000)
-                    {
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8;
-                        width = width * 2;
-                    }
-                    else if ((HwRev & 0xf000) == 0x2000)
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW10;
-                    else if ((HwRev & 0xf000) == 0x3000)
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW12;
-                    else if ((HwRev & 0xf000) == 0x4000)
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV;
-                    else if ((HwRev & 0xf000) == 0x5000)
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL;
-                    else if (capture.cameraModel == LPCamera.CameraModel.ZED)
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.YUV_DUAL;
-
-                    width = width * (m_SensorDataMode == LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW8_DUAL ? 2 : 1);
-
-                    // ETRON3D camera is YUY2 data format, in order to handle it and display
-                    // receive it as raw10 data format, added depth image display area in the right form
-                    if (capture.cameraModel == LPCamera.CameraModel.ETRON3D)
-                    {
-                        m_SensorDataMode = LeopardCamera.LPCamera.SENSOR_DATA_MODE.RAW10;
-                        width += 640;
-                    }
-
-                    this.StartPosition = FormStartPosition.Manual; // YKB 20180428 窗体的位置由Location属性决定
-                    this.Location = (Point)new Size(0, 0);
-                    this.Width = width / 2 + 18; // YKB 20180428 窗口默认以图像的一半显示
-                    this.Height = height / 2 + 50 + pictBDisplay.Top + statusStrip2.Height;
-
-                    capture.EnableTriggerMode(g_ena, g_enb);
-
-                    capture.Run();
-
-                    m_PrevFrameCnt = capture.FrameCount;
-
-                    cameraPropertyToolStripMenuItem.Enabled = true;
-                    optionsToolStripMenuItem.Enabled = true;
-                    resolutionToolStripMenuItem.Enabled = true;
-                    framerateToolStripMenuItem.Enabled = true;
-
-                    // only ar0130_ap0100 camera supports flash update
-                    if (capture.cameraModel == LPCamera.CameraModel.AR0130_AP0100)
-                        programFlashToolStripMenuItem.Enabled = true;
-                    else
-                        programFlashToolStripMenuItem.Enabled = false;
-
-                    cameraList = CameraType.LEOPARD_CAMERA;
-                }
-                catch
-                {
-                    CameraUUID = "";
-                    HwRev = 0;
-                    FwRev = 0;
-                    cameraList = CameraType.NO_CAMERA;
-
-                    AddCamerasToMenu();
-                    updateDeviceInfo();
-                    updateDeviceResolution();
-                    updateDeviceFrameRate();
-
-                    cameraPropertyToolStripMenuItem.Enabled = false;
-                    optionsToolStripMenuItem.Enabled = false;
-                    resolutionToolStripMenuItem.Enabled = false;
-                    triggerModeToolStripMenuItem.Enabled = false;
-                    autoTriggerToolStripMenuItem.Enabled = false;
-                    framerateToolStripMenuItem.Enabled = false;
-
-                    m_AutoTrigger = false;
-
-                    this.Width = 640;
-                    this.Height = 480;
-                }
-            }
-            catch
-            {
-            }
-
-            OpenCameraMutex.ReleaseMutex();
-        }
-
         /// <summary> Resize the preview when the PreviewWindow is resized </summary>
         protected void onPreviewWindowResize(object sender, EventArgs e)
         {
@@ -1238,7 +1053,7 @@ namespace CameraTool
 
         #endregion
 
-        private void SaveCapturedImage() // YKB 20180420 单帧保存图片
+        private void SaveCapturedImage() // YKB 20180420 单帧保存图片。old
         {
             if (!m_SaveFrameToFile) // YKB 20180420 如果不需要保存则退出
             {
@@ -1252,7 +1067,7 @@ namespace CameraTool
                 Directory.CreateDirectory(MySavePath);//创建新路径
             }
 
-            string MyFileName = MySavePath + "PMH_" + DateTime.Now.ToString("yyyyMMdd_hh-mm-ss_fff");
+            string MyFileName = MySavePath + "PMH_" + DateTime.Now.ToString("yyyyMMdd_HH-mm-ss_fff");
 
             // 保存YUV格式图像
             // LeopardCamera.Tools.SaveRAWfile(imageArray, MyFileName);
@@ -1284,7 +1099,7 @@ namespace CameraTool
             return frameCount;
         }
 
-        private void CopyFrame(IntPtr pBuffer, int width, int height, int bpp) // YKB 20180423 复制图像，如果保存帧到文件标志位为true，则复制
+        private void CopyFrame(IntPtr pBuffer, int width, int height, int bpp) // YKB 20180423 复制图像，如果保存帧到文件标志位为true，则复制。old
         {
             if (m_SaveFrameToFile) // YKB 20180423 如果当前处于保存图像中，则退出
                 return;
@@ -3352,6 +3167,7 @@ namespace CameraTool
                 }
 
                 //路径设置
+                g_SubPath = DateTime.Now.ToString("yyyyMMddHHmmss"); // YKB 20180823 更改为每次点击保存时创建子文件夹（之前为打开程序时创建）
                 g_SavePath = ReadKeysString("Save", "SavePath", ".\\image", sb, 255, g_ConfigPath);
                 g_SaveSuffix = ReadKeysString("Save", "SaveSuffix", "", sb, 255, g_ConfigPath);
 

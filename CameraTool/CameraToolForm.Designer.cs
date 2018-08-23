@@ -90,8 +90,6 @@
             this.toolStripStatusLabelRes = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFPS = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel11 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelNumDiff = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusToolStrip7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.pictBDisplay = new System.Windows.Forms.PictureBox();
@@ -105,10 +103,12 @@
             this.toolStripStatusLabelSaveStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelImageExtension = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel13 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelpath = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelSaveCount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel13 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelpath = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelNumDiff = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -528,8 +528,6 @@
             this.toolStripStatusLabelRes,
             this.toolStripStatusLabel1,
             this.toolStripStatusLabelFPS,
-            this.toolStripStatusLabel11,
-            this.toolStripStatusLabelNumDiff,
             this.statusToolStrip7,
             this.statusToolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 25);
@@ -599,25 +597,11 @@
             this.toolStripStatusLabelFPS.Size = new System.Drawing.Size(25, 17);
             this.toolStripStatusLabelFPS.Text = "0.0";
             // 
-            // toolStripStatusLabel11
-            // 
-            this.toolStripStatusLabel11.Name = "toolStripStatusLabel11";
-            this.toolStripStatusLabel11.Size = new System.Drawing.Size(63, 17);
-            this.toolStripStatusLabel11.Text = "Num Diff:";
-            // 
-            // toolStripStatusLabelNumDiff
-            // 
-            this.toolStripStatusLabelNumDiff.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.toolStripStatusLabelNumDiff.Name = "toolStripStatusLabelNumDiff";
-            this.toolStripStatusLabelNumDiff.Size = new System.Drawing.Size(19, 17);
-            this.toolStripStatusLabelNumDiff.Text = "0 ";
-            this.toolStripStatusLabelNumDiff.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // statusToolStrip7
             // 
             this.statusToolStrip7.Name = "statusToolStrip7";
-            this.statusToolStrip7.Size = new System.Drawing.Size(46, 17);
-            this.statusToolStrip7.Text = "Status:";
+            this.statusToolStrip7.Size = new System.Drawing.Size(85, 17);
+            this.statusToolStrip7.Text = "Frame Count:";
             // 
             // statusToolStripStatusLabel
             // 
@@ -699,6 +683,8 @@
             this.toolStripStatusLabelSaveStatus,
             this.toolStripStatusLabel12,
             this.toolStripStatusLabelImageExtension,
+            this.toolStripStatusLabel8,
+            this.toolStripStatusLabelNumDiff,
             this.toolStripStatusLabel7,
             this.toolStripStatusLabelSaveCount,
             this.toolStripStatusLabel13,
@@ -736,18 +722,6 @@
             this.toolStripStatusLabelImageExtension.Size = new System.Drawing.Size(28, 17);
             this.toolStripStatusLabelImageExtension.Text = "jpg";
             // 
-            // toolStripStatusLabel13
-            // 
-            this.toolStripStatusLabel13.Name = "toolStripStatusLabel13";
-            this.toolStripStatusLabel13.Size = new System.Drawing.Size(37, 17);
-            this.toolStripStatusLabel13.Text = "path:";
-            // 
-            // toolStripStatusLabelpath
-            // 
-            this.toolStripStatusLabelpath.Name = "toolStripStatusLabelpath";
-            this.toolStripStatusLabelpath.Size = new System.Drawing.Size(12, 17);
-            this.toolStripStatusLabelpath.Text = " ";
-            // 
             // toolStripStatusLabel7
             // 
             this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
@@ -760,6 +734,31 @@
             this.toolStripStatusLabelSaveCount.Name = "toolStripStatusLabelSaveCount";
             this.toolStripStatusLabelSaveCount.Size = new System.Drawing.Size(15, 17);
             this.toolStripStatusLabelSaveCount.Text = "0";
+            // 
+            // toolStripStatusLabel13
+            // 
+            this.toolStripStatusLabel13.Name = "toolStripStatusLabel13";
+            this.toolStripStatusLabel13.Size = new System.Drawing.Size(37, 17);
+            this.toolStripStatusLabel13.Text = "path:";
+            // 
+            // toolStripStatusLabelpath
+            // 
+            this.toolStripStatusLabelpath.Name = "toolStripStatusLabelpath";
+            this.toolStripStatusLabelpath.Size = new System.Drawing.Size(12, 17);
+            this.toolStripStatusLabelpath.Text = " ";
+            // 
+            // toolStripStatusLabel8
+            // 
+            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
+            this.toolStripStatusLabel8.Size = new System.Drawing.Size(32, 17);
+            this.toolStripStatusLabel8.Text = "cap:";
+            // 
+            // toolStripStatusLabelNumDiff
+            // 
+            this.toolStripStatusLabelNumDiff.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.toolStripStatusLabelNumDiff.Name = "toolStripStatusLabelNumDiff";
+            this.toolStripStatusLabelNumDiff.Size = new System.Drawing.Size(15, 17);
+            this.toolStripStatusLabelNumDiff.Text = "0";
             // 
             // CameraToolForm
             // 
@@ -864,12 +863,10 @@
         private System.Windows.Forms.ToolStripMenuItem programFlashToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAllImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ShowGridtoolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel11;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem BMPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem JPGToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem PNGToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelNumDiff;
         private System.Windows.Forms.ToolStripMenuItem GIFToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem TIFFToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;
@@ -880,6 +877,8 @@
         private System.Windows.Forms.ToolStripStatusLabel statusToolStripStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSaveCount;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelNumDiff;
     }
 }
 

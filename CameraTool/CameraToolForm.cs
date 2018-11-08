@@ -190,7 +190,7 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + iNumDiff.ToString("D6") + g_SaveSuffix;
+                    FileName = SavePath + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + iNumDiff.ToString("D6") + "_" + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);
@@ -212,7 +212,7 @@ namespace CameraTool
                     {
                         Directory.CreateDirectory(SavePath);//创建新路径
                     }
-                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + g_SaveSuffix;
+                    FileName = SavePath + "\\" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + g_SaveSuffix;
                     FileName = Path.ChangeExtension(FileName, g_Image_Extension);
 
                     imageBmpSave.Save(FileName, g_ImageCodecInfo, g_EncoderParameters);

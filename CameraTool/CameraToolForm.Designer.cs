@@ -66,6 +66,7 @@
             this.rGBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.monoSensorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.FlipImagetoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.noDisplayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ShowGridtoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showAnchorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -103,12 +104,12 @@
             this.toolStripStatusLabelSaveStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelImageExtension = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelNumDiff = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelSaveCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel13 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelpath = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelNumDiff = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictBDisplay)).BeginInit();
@@ -224,6 +225,7 @@
             this.pixelOrderToolStripMenuItem,
             this.monoSensorToolStripMenuItem,
             this.toolStripSeparator3,
+            this.FlipImagetoolStripMenuItem,
             this.noDisplayToolStripMenuItem,
             this.ShowGridtoolStripMenuItem,
             this.showAnchorsToolStripMenuItem,
@@ -420,6 +422,13 @@
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(221, 6);
+            // 
+            // FlipImagetoolStripMenuItem
+            // 
+            this.FlipImagetoolStripMenuItem.Name = "FlipImagetoolStripMenuItem";
+            this.FlipImagetoolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.FlipImagetoolStripMenuItem.Text = "FlipImage";
+            this.FlipImagetoolStripMenuItem.Click += new System.EventHandler(this.FlipImagetoolStripMenuItem_Click);
             // 
             // noDisplayToolStripMenuItem
             // 
@@ -722,6 +731,19 @@
             this.toolStripStatusLabelImageExtension.Size = new System.Drawing.Size(28, 17);
             this.toolStripStatusLabelImageExtension.Text = "jpg";
             // 
+            // toolStripStatusLabel8
+            // 
+            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
+            this.toolStripStatusLabel8.Size = new System.Drawing.Size(32, 17);
+            this.toolStripStatusLabel8.Text = "cap:";
+            // 
+            // toolStripStatusLabelNumDiff
+            // 
+            this.toolStripStatusLabelNumDiff.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.toolStripStatusLabelNumDiff.Name = "toolStripStatusLabelNumDiff";
+            this.toolStripStatusLabelNumDiff.Size = new System.Drawing.Size(15, 17);
+            this.toolStripStatusLabelNumDiff.Text = "0";
+            // 
             // toolStripStatusLabel7
             // 
             this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
@@ -746,19 +768,6 @@
             this.toolStripStatusLabelpath.Name = "toolStripStatusLabelpath";
             this.toolStripStatusLabelpath.Size = new System.Drawing.Size(12, 17);
             this.toolStripStatusLabelpath.Text = " ";
-            // 
-            // toolStripStatusLabel8
-            // 
-            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
-            this.toolStripStatusLabel8.Size = new System.Drawing.Size(32, 17);
-            this.toolStripStatusLabel8.Text = "cap:";
-            // 
-            // toolStripStatusLabelNumDiff
-            // 
-            this.toolStripStatusLabelNumDiff.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.toolStripStatusLabelNumDiff.Name = "toolStripStatusLabelNumDiff";
-            this.toolStripStatusLabelNumDiff.Size = new System.Drawing.Size(15, 17);
-            this.toolStripStatusLabelNumDiff.Text = "0";
             // 
             // CameraToolForm
             // 
@@ -879,6 +888,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSaveCount;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelNumDiff;
+        private System.Windows.Forms.ToolStripMenuItem FlipImagetoolStripMenuItem;
     }
 }
 

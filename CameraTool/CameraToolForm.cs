@@ -55,6 +55,7 @@ namespace CameraTool
         private bool m_AutoExposure = false;
         private bool m_MonoSensor = false;
         private bool m_AutoTrigger = false;
+        private bool m_FlipImage = false;
         private bool g_ena = false; // YKB 20180727 相机外部触发使能
         private bool g_enb = false; // YKB 20180727 相机外部触发选择，true 上升沿触发；false 下降沿触发
         private int m_AutoTriggerCnt = 0, m_AutoTriggerPrevCnt = 0;
@@ -160,7 +161,7 @@ namespace CameraTool
             thread.Start();
 
             timer.Tick += new EventHandler(timer_Tick); // Everytime timer ticks, timer_Tick will be called
-            timer.Interval = (10);
+            timer.Interval = (94);
             timer.Enabled = true;                       // Enable the timer
             timer.Start();                              // Start the timer
 
@@ -373,10 +374,9 @@ namespace CameraTool
                     if (m_AutoTriggerPrevCnt != m_AutoTriggerCnt)
                     {
                         TimeSpan tsAutoTrigger = triggerEndTime - triggerStartTime;
-                        //statusToolStripStatusLabel.Text += "  Capture Latency: " + (tsAutoTrigger.Seconds * 1000 + tsAutoTrigger.Milliseconds).ToString() + " ms"; // Capture Latency (including exposure time)
+                        // statusToolStripStatusLabel.Text += "  Capture Latency: " + (tsAutoTrigger.Seconds * 1000 + tsAutoTrigger.Milliseconds).ToString() + " ms"; // Capture Latency (including exposure time)
 
                         m_AutoTriggerPrevCnt = m_AutoTriggerCnt;
-
                         capture.SoftTrigger();
                         triggerStartTime = DateTime.Now;
                     }
@@ -3301,6 +3301,12 @@ namespace CameraTool
             {
                 Application.DoEvents();
             }
+        }
+
+        private void FlipImagetoolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_FlipImage = !m_FlipImage;
+            capture.FlagFlipImage(m_FlipImage);
         }
     }
 }

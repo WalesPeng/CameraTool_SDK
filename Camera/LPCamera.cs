@@ -131,6 +131,11 @@ namespace LeopardCamera
             rendererWin = (IVideoWindow)m_capture.m_pRendererVideo;
         }
 
+        public void FlagFlipImage(bool value)
+        {
+            m_capture.FlagFlipImage(value);
+        }
+
         public void Close()
         {
             if (this.opened)

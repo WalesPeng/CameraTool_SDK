@@ -116,6 +116,11 @@ namespace LeopardCamera
         protected IntPtr m_ipBuffer1 = IntPtr.Zero;
         public VideoProcAmpProperty[] videoProperties;
         public CameraControlProperty[] controlProperties;
+        
+        protected int[] val_tl;
+        protected int[] val_bl;
+        public bool m_bFlagFlipImage = false;
+
 
         /// <summary>Virtual property media type translates 4CC code to Guid and back for limited set of properties</summary>
         public string mediaType
@@ -128,6 +133,11 @@ namespace LeopardCamera
             {
 
             }
+        }
+
+        public void FlagFlipImage(bool value)
+        {
+            m_bFlagFlipImage = value;
         }
 
         /// <summary>A flag for verbosity to be injected.</summary>
@@ -296,6 +306,8 @@ namespace LeopardCamera
 
                 SetupGraph(cameraDevice, m_iWidth, m_iHeight, m_iBPP, iTPF, display, parentWin);
 
+                val_tl = new int[m_iWidth];
+                val_bl = new int[m_iWidth];
                 // tell the callback to ignore new images
                 m_PictureReady = new ManualResetEvent(false);
             }
@@ -1047,7 +1059,31 @@ namespace LeopardCamera
             if (BufferLen == 307200 && mCameraModel == 0x0568)  // for etron 3d camera
                 m_ipBuffer1 = pBuffer;
             else
+            {
+                if (m_bFlagFlipImage)
+                {
+                    //for (int i = 0; i < m_iHeight / 2; i++)
+                    //{
+                    //    Marshal.Copy(pBuffer + i * m_iWidth * m_iBPP / 8, val_tl, 0, m_iWidth);
+                    //    Marshal.Copy(pBuffer + (m_iHeight - i - 1) * m_iWidth * m_iBPP / 8, val_bl, 0, m_iWidth);
+
+                    //    Marshal.Copy(val_tl, 0, pBuffer + (m_iHeight - i - 1) * m_iWidth * m_iBPP / 8, m_iWidth);
+                    //    Marshal.Copy(val_bl, 0, pBuffer + i * m_iWidth * m_iBPP / 8, m_iWidth);
+                    //}
+
+                    for (int i = 0; i < m_iHeight / 2; i++)
+                    {
+                        Marshal.Copy(pBuffer + i * m_iWidth * m_iBPP / 8, val_tl, 0, m_iWidth);
+                        CopyMemory(pBuffer + i * m_iWidth * m_iBPP / 8, pBuffer + (m_iHeight - i - 1) * m_iWidth * m_iBPP / 8, m_iWidth * m_iBPP / 8);
+
+                        Marshal.Copy(val_tl, 0, pBuffer + (m_iHeight - i - 1) * m_iWidth * m_iBPP / 8, m_iWidth);
+                    }
+
+                }
+
                 m_ipBuffer = pBuffer;
+            }
+                //m_ipBuffer = pBuffer;
 
             OutWidth = m_sizeX;
             OutHeight = m_sizeY;
@@ -1277,7 +1313,7 @@ namespace LeopardCamera
             }
             else
                 bValue[0] = 0x00;
-            bValue[1] = 0x00;
+                bValue[1] = 0x00;
 
             unsafe
             {

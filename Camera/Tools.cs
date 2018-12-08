@@ -68,6 +68,54 @@ namespace LeopardCamera
 
             return bmp;
         }
+        public static Bitmap ConvertBayer2BMP_YKB(IntPtr ptr, int iInWidth, int iHeight, Bitmap bmp, int iBits, int pixelOrder, double gamma, bool Mono, bool Dual)
+        {
+            int iWidth = iInWidth * (Dual ? 2 : 1);
+            int iSize = iWidth * iHeight * 2;
+
+            int iPadding = (iWidth * 3) % 4;
+            if (iPadding != 0)  // padding to make Bitmap.stride a multiple of 4
+                iPadding = 4 - iPadding;
+
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+                                        ImageLockMode.WriteOnly, bmp.PixelFormat);
+            IntPtr rgb = bmpData.Scan0;
+
+            unsafe
+            {
+                if (Dual)
+                {
+                    IntPtr ptr_t = Marshal.AllocHGlobal(iWidth * iHeight);
+
+                    convDualImage(ptr, ptr_t, iInWidth, iHeight);
+                    if (!Mono)
+                        raw_to_bmp(ptr_t, rgb, iWidth, iHeight, iBits, pixelOrder, (gamma != 1.0), gamma,
+                                    600, -92, -70,
+                                    -97, 389, -36,
+                                    -130, -304, 690,
+                                     0, 0, 0);
+                    else
+                        raw_to_bmp_mono(ptr_t, rgb, iWidth, iHeight, iBits, (gamma != 1.0), gamma);
+
+                    Marshal.FreeHGlobal(ptr_t);
+                }
+                else
+                {
+                    if (!Mono)
+                        raw_to_bmp(ptr, rgb, iWidth, iHeight, iBits, pixelOrder, (gamma != 1.0), gamma,
+                                    600, -92, -70,
+                                    -97, 389, -36,
+                                    -130, -304, 690,
+                                     0, 0, 0);
+                    else
+                        raw_to_bmp_mono(ptr, rgb, iWidth, iHeight, iBits, (gamma != 1.0), gamma);
+                }
+            }
+
+            bmp.UnlockBits(bmpData);
+
+            return bmp;
+        }
 
         public static void ConvertBayer2y(IntPtr ptr, int iInWidth, int iHeight, int iBits, int pixelOrder, double gamma, bool Mono, bool Dual)
         {
@@ -153,6 +201,23 @@ namespace LeopardCamera
             unsafe
             {
                 convert_yuv_to_rgb_buffer(ptr, rgb, iInWidth, iHeight, mark_en, offset, topleft, bottomleft, topright, bottomright);
+            }
+
+            bmp.UnlockBits(bmpData);
+
+            return bmp;
+        }
+
+        // YKB 20180726 屏蔽marken等信息
+        public static Bitmap ConvrtYUV422BMP_YKB(IntPtr ptr, int iInWidth, int iHeight, Bitmap bmp)
+        {
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+                                        ImageLockMode.WriteOnly, bmp.PixelFormat);
+            IntPtr rgb = bmpData.Scan0;
+
+            unsafe
+            {
+                convert_yuv_to_rgb_buffer_YKB(ptr, rgb, iInWidth, iHeight);
             }
 
             bmp.UnlockBits(bmpData);
@@ -567,6 +632,10 @@ namespace LeopardCamera
         [DllImport("CAppLib.dll", CallingConvention = CallingConvention.Cdecl)]
 
         private static extern int convert_yuv_to_rgb_buffer(IntPtr yuv, IntPtr rgb, int width, int height, bool mark_en, int Center_picturebox_offset, int left_top, int left_bottom, int right_top, int right_bottom);
+
+        [DllImport("CAppLib.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int convert_yuv_to_rgb_buffer_YKB(IntPtr yuv, IntPtr rgb, int width, int height);
+
 
         [DllImport("CAppLib.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void reframeTo720p(IntPtr out_buf, IntPtr in_buf, int iWidth, int iHeight, int dataWidth);
